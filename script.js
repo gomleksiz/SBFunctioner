@@ -265,6 +265,49 @@ function checkBalance(str) {
     return { balanced: true };
 }
 
+function checkQuotesBalance(str) {
+    let inSingleQuote = false;
+    let inDoubleQuote = false;
+    let singleQuoteStart = -1;
+    let doubleQuoteStart = -1;
+    
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        const prevChar = i > 0 ? str[i-1] : '';
+        
+        // Skip escaped quotes
+        if (prevChar === '\\') {
+            continue;
+        }
+        
+        if (char === "'" && !inDoubleQuote) {
+            if (inSingleQuote) {
+                inSingleQuote = false;
+            } else {
+                inSingleQuote = true;
+                singleQuoteStart = i;
+            }
+        } else if (char === '"' && !inSingleQuote) {
+            if (inDoubleQuote) {
+                inDoubleQuote = false;
+            } else {
+                inDoubleQuote = true;
+                doubleQuoteStart = i;
+            }
+        }
+    }
+    
+    if (inSingleQuote) {
+        return { balanced: false, type: 'unclosed', quoteType: 'single', index: singleQuoteStart };
+    }
+    
+    if (inDoubleQuote) {
+        return { balanced: false, type: 'unclosed', quoteType: 'double', index: doubleQuoteStart };
+    }
+    
+    return { balanced: true };
+}
+
 function validateFunction() {
     const input = document.getElementById('functionInput').value;
     const resultsDiv = document.getElementById('validationResults');
@@ -284,6 +327,7 @@ function validateFunction() {
     let messages = [];
     let hasErrors = false;
     let errorIndices = [];
+    let validationErrors = [];
 
     const balanceResult = checkBalance(input);
     if (!balanceResult.balanced) {
@@ -291,6 +335,12 @@ function validateFunction() {
         let errorMsg = '';
         let errorIndex = balanceResult.index;
         if (errorIndex !== undefined) {
+            // Add to validation errors for proper highlighting
+            validationErrors.push({
+                message: `Bracket error at position ${errorIndex}`,
+                index: errorIndex,
+                length: 1
+            });
             errorIndices.push(errorIndex);
         }
         if (balanceResult.type === 'mismatch') {
@@ -304,10 +354,34 @@ function validateFunction() {
     } else {
         messages.push('<p class="success">Brackets and Parentheses are balanced.</p>');
     }
+    
+    // Check for balanced quotes
+    const quotesResult = checkQuotesBalance(input);
+    if (!quotesResult.balanced) {
+        hasErrors = true;
+        let errorMsg = '';
+        let errorIndex = quotesResult.index;
+        if (errorIndex !== undefined) {
+            // Add to validation errors for proper highlighting
+            validationErrors.push({
+                message: `Quote error at position ${errorIndex}`,
+                index: errorIndex,
+                length: 1
+            });
+            errorIndices.push(errorIndex);
+        }
+        if (quotesResult.quoteType === 'single') {
+            errorMsg = `<p class="error">Error: Unclosed single quote (') starting at position ${errorIndex}.</p>`;
+        } else {
+            errorMsg = `<p class="error">Error: Unclosed double quote (") starting at position ${errorIndex}.</p>`;
+        }
+        messages.push(errorMsg);
+    } else {
+        messages.push('<p class="success">Quotes are balanced.</p>');
+    }
 
     const allDetectedFunctions = findAllFunctionOccurrences(input);
     const uniqueFunctionNames = [...new Set(allDetectedFunctions.map(f => f.name))];
-    let validationErrors = [];
 
     allDetectedFunctions.forEach(func => {
         if (func.context === 'brace' && func.actualUnderscores !== func.expectedUnderscores) {
@@ -321,15 +395,17 @@ function validateFunction() {
         }
     });
 
-    const missingUnderscoreRegex = /\$\{\s*([^_\s])/g;
+    // Check for function calls without underscores inside ${...}
+    const missingUnderscoreRegex = /\$\{\s*([a-zA-Z][\w]*)\s*\(/g;
     let missingMatch;
 
     while ((missingMatch = missingUnderscoreRegex.exec(input)) !== null) {
-        if (missingMatch[1] && missingMatch[1] !== '}' && !missingMatch[1].match(/\s/)) {
+        // Only validate if there's a function call with parenthesis
+        if (missingMatch[1] && missingMatch[1] !== '}') {
             validationErrors.push({
-                message: `Validation Error: Missing underscore after \${ at index ${missingMatch.index + 2}. Function calls inside \${...} must start with underscores.`,
+                message: `Validation Error: Missing underscore before function name '${missingMatch[1]}'. Function calls inside \${...} must start with underscores.`,
                 index: missingMatch.index + 2,
-                length: 1
+                length: missingMatch[1].length
             });
             errorIndices.push(missingMatch.index + 2);
             hasErrors = true;
@@ -398,18 +474,31 @@ function validateFunction() {
     }
 
     if (input.trim().length > 0) {
-        if (errorIndices.length > 0) {
-            errorIndices.sort((a, b) => a - b);
+        if (validationErrors.length > 0) {
+            // Sort errors by their position in the input
+            validationErrors.sort((a, b) => a.index - b.index);
+            
             let lastIdx = 0;
             let displayStr = '';
-            errorIndices.forEach(errorIdx => {
-                if (errorIdx >= 0 && errorIdx < input.length) {
-                    displayStr += input.substring(lastIdx, errorIdx);
-                    displayStr += `<span class="highlight-error">${input.charAt(errorIdx)}</span>`;
-                    lastIdx = errorIdx + 1;
+            
+            // Apply highlighting to each error section
+            validationErrors.forEach(error => {
+                if (error.index >= 0 && error.index < input.length) {
+                    // Add text before the error
+                    displayStr += input.substring(lastIdx, error.index);
+                    
+                    // Add the error with highlighting
+                    const errorText = input.substring(error.index, error.index + error.length);
+                    displayStr += `<span class="highlight-error">${errorText}</span>`;
+                    
+                    // Update the last index
+                    lastIdx = error.index + error.length;
                 }
             });
+            
+            // Add any remaining text after the last error
             displayStr += input.substring(lastIdx);
+            
             inputDisplayDiv.innerHTML = displayStr;
             inputDisplayDiv.className = '';
         } else {
