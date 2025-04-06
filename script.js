@@ -13,6 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
             functionSyntax = data;
             validFunctionNames = Object.keys(functionSyntax);
             console.log("Function syntax loaded successfully.");
+            
+            // Check if there's a function parameter in the URL (coming from generator page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const functionParam = urlParams.get('function');
+            
+            if (functionParam) {
+                const inputElement = document.getElementById('functionInput');
+                if (inputElement) {
+                    inputElement.value = functionParam;
+                    // Trigger validation
+                    validateFunction();
+                }
+            }
         })
         .catch(error => {
             console.error('Error loading function syntax:', error);

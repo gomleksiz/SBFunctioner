@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stonebranch Function Generator</h1>
+        <div class="nav-links">
+            <a href="index.html">Function Validator</a> | <a href="generate.html" class="active">Function Generator</a>
+        </div>
+        
+        <div class="generator-container">
+            <textarea id="textInput" placeholder="Describe the function you want to generate..."></textarea>
+            <button id="generateBtn">Generate Function</button>
+            
+            <div id="loadingIndicator" class="loading-indicator">
+                <div class="spinner"></div>
+                <p>Generating function...</p>
+            </div>
+            
+            <div id="generatedFunction" class="generated-function">
+                <h3>Generated Function:</h3>
+                <pre id="functionOutput"></pre>
+                <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+                <button id="validateBtn" class="validate-btn">Validate Function</button>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+    <script src="generate.js"></script>
+</body>
+</html>
