@@ -1,0 +1,392 @@
+Function: _ifEqual
+Syntax:   ${_ifEqual('value1', 'value2', 'if_value', 'else_value'[, ignore_case])
+
+Function: _ifTrue
+Syntax:   ${_ifTrue(value, 'if_value', 'else_value')
+
+Function: _credentialKeyLoc
+Syntax:   ${_credentialKeyLoc('<credential_name>')
+
+Function: _credentialPassphrase
+Syntax:   ${_credentialPassphrase('<credential_name>')
+
+Function: _credentialToken
+Syntax:   ${_credentialToken('<credential_name>')
+
+Function: _credentialUser
+Syntax:   ${_credentialUser('<credential_name>')
+
+Function: _credentialPwd
+Syntax:   ${_credentialPwd('<credential_name>')
+
+Function: _databaseConnection
+Syntax:   ${_databaseConnection('<database_connection_name>', '<property_name>')
+
+Function: _isToday
+Syntax:   ${_isToday('date'[, 'format', is_relative])
+
+Function: _date
+Syntax:   ${_date(['format', day_offset, hour_offset, minute_offset])
+
+Function: _dateadv
+Syntax:   ${_dateadv(['format', year_offset, month_offset, day_offset, hour_offset, minute_offset])
+
+Function: _formatDate
+Syntax:   ${_formatDate(['date_time', 'format', day_offset, use_business_days, hour_offset, minute_offset, timezone])
+
+Function: _formatDateAdv
+Syntax:   ${_formatDateAdv(['date_time', 'format', year_offset, month_offset, day_offset, use_business_days, hour_offset, minute_offset, timezone])
+
+Function: _formatDateTz
+Syntax:   ${_formatDateTz('date_time', 'target_time_zone'[, 'output_format'])
+
+Function: _dayOfWeek
+Syntax:   ${_dayOfWeek(['date', 'first_dow', first_dow_value])
+
+Function: _daysBetween
+Syntax:   ${_daysBetween('date1', 'date2')
+
+Function: _nonBusinessDayOfMonth
+Syntax:   ${_nonBusinessDayOfMonth(index, ['date', 'format', reverse])
+
+Function: _businessDayOfMonth
+Syntax:   ${_businessDayOfMonth(index, ['date', 'format', reverse])
+
+Function: _dayOfMonth
+Syntax:   ${_dayOfMonth(index, ['date', 'format', reverse])
+
+Function: _dayOfWeekInMonth
+Syntax:   ${_dayOfWeekInMonth(index, dow, ['date', 'format', reverse])
+
+Function: _dayOfWeekInMonthAdv
+Syntax:   ${_dayOfWeekInMonthAdv(index, dow, ['date', 'format', reverse, year_offset, month_offset, day_offset, use_business_days])
+
+Function: _weekdayOfMonth
+Syntax:   ${_weekdayOfMonth(index, ['date', 'format', reverse])
+
+Function: _weekdayOfMonthAdv
+Syntax:   ${_weekdayOfMonthAdv(index, ['date', 'format', reverse, year_offset, month_offset, day_offset, use_business_days])
+
+Function: _businessDaysBetween
+Syntax:   ${_businessDaysBetween('date1', 'date2')
+
+Function: _add
+Syntax:   ${_add(augend, addend)
+
+Function: _divide
+Syntax:   ${_divide(dividend, divisor)
+
+Function: _multiply
+Syntax:   ${_multiply(multiplicand, multiplier)
+
+Function: _mod
+Syntax:   ${_mod(dividend, divisor)
+
+Function: _subtract
+Syntax:   ${_subtract(minuend, subtrahend)
+
+Function: _businessServices
+Syntax:   ${_businessServices(['resultDelimiter'])
+
+Function: _executionUserEmail
+Syntax:   ${_executionUserEmail()}
+
+Function: _outputCsvRecordCount
+Syntax:   ${_outputCsvRecordCount('<outputType>')}
+
+Function: _outputCsvRecordValueCount
+Syntax:   ${_outputCsvRecordValueCount('outputType', recordIndex)}
+
+Function: _outputCsvRecordValue
+Syntax:   ${_outputCsvRecordValue('outputType', recordIndex, valueIndex)}
+
+Function: _outputTsvRecordCount
+Syntax:   ${_outputTsvRecordCount('<outputType>')}
+
+Function: _outputTsvRecordValueCount
+Syntax:   ${_outputTsvRecordValueCount('outputType', recordIndex)}
+
+Function: _outputTsvRecordValue
+Syntax:   ${_outputTsvRecordValue('outputType', recordIndex, valueIndex)}
+
+Function: _outputCsvRecordCountFromTask
+Syntax:   ${_outputCsvRecordCountFromTask('siblingName', 'outputType')}
+
+Function: _outputCsvRecordValueCountFromTask
+Syntax:   ${_outputCsvRecordValueCountFromTask('siblingName', 'outputType', 'recordIndex')}
+
+Function: _outputCsvRecordValueFromTask
+Syntax:   ${_outputCsvRecordValueFromTask('siblingName','outputType', recordIndex, valueIndex)}
+
+Function: _outputTsvRecordCountFromTask
+Syntax:   ${_outputTsvRecordCountFromTask('siblingName','outputType')}
+
+Function: _outputTsvRecordValueCountFromTask
+Syntax:   ${_outputTsvRecordValueCountFromTask('siblingName','outputType', 'recordIndex')}
+
+Function: _outputTsvRecordValueFromTask
+Syntax:   ${_outputTsvRecordValueFromTask('siblingName','outputType', recordIndex, valueIndex)}
+
+Function: _outputDelimitedValueCount
+Syntax:   ${_outputDelimitedValueCount('outputType', ['delimiter', splitPreserveAllTokens])}
+
+Function: _outputDelimitedValue
+Syntax:   ${_outputDelimitedValue('outputType', valueIndex, ['delimiter', splitPreserveAllTokens])}
+
+Function: _outputDelimitedValueCountFromTask
+Syntax:   ${_outputDelimitedValueCountFromTask('siblingName','outputType', ['delimiter', splitPreserveAllTokens])}
+
+Function: _outputDelimitedValueFromTask
+Syntax:   ${_outputDelimitedValueFromTask('siblingName','outputType', valueIndex, ['delimiter', splitPreserveAllTokens])}
+
+Function: _output
+Syntax:   ${_output('outputType'[, 'defaultValue'])
+
+Function: _outputFromTask
+Syntax:   ${_outputFromTask('siblingName', 'outputType'[, 'defaultValue'])
+
+Function: _outputNumberOfLines
+Syntax:   ${_outputNumberOfLines('outputType')}
+
+Function: _outputNumberOfLinesFromTask
+Syntax:   ${_outputNumberOfLinesFromTask('siblingName', 'outputType')}
+
+Function: _outputLines
+Syntax:   ${_outputLines('outputType', startLine, numberOfLines[, 'defaultValue', 'resultDelimiter'])
+
+Function: _outputLinesFromTask
+Syntax:   ${_outputLinesFromTask('siblingName', 'outputType', startLine, numberOfLines[, 'defaultValue', 'resultDelimiter'])
+
+Function: _outputLinesByRegex
+Syntax:   ${_outputLinesByRegex('outputType', 'regexPattern'[, maxCount, numberOfLinesBefore, numberOfLinesAfter, 'defaultValue', 'resultDelimiter'])
+
+Function: _outputLinesByRegexFromTask
+Syntax:   ${_outputLinesByRegexFromTask('siblingName', 'outputType', 'regexPattern'[, maxCount, numberOfLinesBefore, numberOfLinesAfter, 'defaultValue', 'resultDelimiter'])
+
+Function: _outputXPath
+Syntax:   ${_outputXPath('outputType', 'xPathExpression'[, 'defaultValue', 'delimiter', prettyPrint])}
+
+Function: _outputXPathFromTask
+Syntax:   ${_outputXPathFromTask('siblingName', 'outputType', 'xPathExpression'[, 'defaultValue', 'delimiter', prettyPrint])}
+
+Function: _outputJsonPath
+Syntax:   ${_outputJsonPath('outputType', 'pathExpression'[, 'defaultValue', 'delimiter', prettyPrint])}
+
+Function: _outputJsonPathFromTask
+Syntax:   ${_outputJsonPathFromTask('siblingName', 'outputType', 'pathExpression'[, 'defaultValue', prettyPrint])}
+
+Function: _outputJsonPathAsArray
+Syntax:   ${_outputJsonPathAsArray('outputType', 'pathExpression'[, 'defaultValue', prettyPrint])}
+
+Function: _outputPath
+Syntax:   ${_outputPath('outputType'[, 'fileExtension'])}
+
+Function: _outputPathFromTask
+Syntax:   ${_outputPathFromTask('siblingName', 'outputType'[, 'fileExtension'])}
+
+Function: _sapConnection
+Syntax:   ${_sapConnection('<sap_connection_name>', '<property_name>')}
+
+Function: _scriptPath
+Syntax:   ${_scriptPath('script_name')}
+
+Function: _resultsColumnNames
+Syntax:   ${_resultsColumnNames(['separator'])
+
+Function: _resultsColumnNamesFromTask
+Syntax:   ${_resultsColumnNamesFromTask('name'[, 'separator'])
+
+Function: _resultsAll
+Syntax:   ${_resultsAll(['separator', 'rowSeparator'])
+
+Function: _resultsAllFromTask
+Syntax:   ${_resultsAllFromTask('name'[, 'separator', 'rowSeparator'])
+
+Function: _SQLWarnings
+Syntax:   ${_SQLWarnings(['separator'])
+
+Function: _SQLWarningsFromTask
+Syntax:   ${_SQLWarningsFromTask('name'[, 'separator'])
+
+Function: _resultsColumn
+Syntax:   ${_resultsColumn('name', 'colname'[, rownum, 'default_value'])
+
+Function: _resultsColumnByNo
+Syntax:   ${_resultsColumnByNo('name', colnum[, rownum, 'default_value'])
+
+Function: _resultsColumnsCSV
+Syntax:   ${_resultsColumnsCSV('name'[, rownum])
+
+Function: _toLowerCase
+Syntax:   ${_toLowerCase('value')
+
+Function: _varToLowerCase
+Syntax:   ${_varToLowerCase('variableName')
+
+Function: _toUpperCase
+Syntax:   ${_toUpperCase('value')
+
+Function: _varToUpperCase
+Syntax:   ${_varToUpperCase('variableName')
+
+Function: _varEscapeXml
+Syntax:   ${_varEscapeXml('variableName')
+
+Function: _varEscapeJson
+Syntax:   ${_varEscapeJson('variableName')
+
+Function: _varEscapeJavaScript
+Syntax:   ${_varEscapeJavaScript('variableName')
+
+Function: _varEscapeHtml
+Syntax:   ${_varEscapeHtml('variableName')
+
+Function: _varLiteralPattern
+Syntax:   ${_varLiteralPattern('variableName')
+
+Function: _randomString
+Syntax:   ${_randomString(length[, 'excludeCharacters', 'defaultCharacters'])
+
+Function: _replaceAll
+Syntax:   ${_replaceAll('value', 'regex', 'replacement')
+
+Function: _varReplaceAll
+Syntax:   ${_varReplaceAll('variableName', 'regex', 'replacement')
+
+Function: _varEncodeBase64
+Syntax:   ${_varEncodeBase64('variableName'[, 'charset'])}
+
+Function: _trim
+Syntax:   ${_trim('value')
+
+Function: _varTrim
+Syntax:   ${_varTrim('variableName')
+
+Function: _indexOf
+Syntax:   ${_indexOf('value', 'str')
+
+Function: _varIndexOf
+Syntax:   ${_varIndexOf('variableName', 'str')
+
+Function: _indexOfWithOffset
+Syntax:   ${_indexOfWithOffset('value', 'str', offset)
+
+Function: _varIndexOfWithOffset
+Syntax:   ${_varIndexOfWithOffset('variableName', 'str', offset)
+
+Function: _lastIndexOf
+Syntax:   ${_lastIndexOf('value', 'str')
+
+Function: _varLastIndexOf
+Syntax:   ${_varLastIndexOf('variableName', 'str')
+
+Function: _lastIndexOfWithOffset
+Syntax:   ${_lastIndexOfWithOffset('value', 'str', offset)
+
+Function: _varLastIndexOfWithOffset
+Syntax:   ${_varLastIndexOfWithOffset('variableName', 'str', offset)
+
+Function: _length
+Syntax:   ${_length('value')
+
+Function: _varLength
+Syntax:   ${_varLength('variableName'[, useEmptyForUndefined])
+
+Function: _substring
+Syntax:   ${_substring('value', beginIndex[, endIndex])
+
+Function: _varSubstring
+Syntax:   ${_varSubstring('variableName', beginIndex[, endIndex])
+
+Function: _varEncodeUrl
+Syntax:   ${_varEncodeUrl('variableName')}
+
+Function: _varXPath
+Syntax:   ${_varXPath('variableName', 'xPathExpression'[, 'defaultValue', 'delimiter', prettyPrint])}
+
+Function: _varJsonPath
+Syntax:   ${_varJsonPath('variableName', 'pathExpression'[, 'defaultValue', 'delimiter', prettyPrint])}
+
+Function: _varJsonPathAsArray
+Syntax:   ${_varJsonPathAsArray('variableName', 'pathExpression'[, 'defaultValue', prettyPrint])}
+
+Function: _varNumberOfLines
+Syntax:   ${_varNumberOfLines('variableName')}
+
+Function: _varLines
+Syntax:   ${_varLines('variableName', startLine, numberOfLines[, 'defaultValue', 'resultDelimiter'])}
+
+Function: _varLinesByRegex
+Syntax:   ${_varLinesByRegex('variableName', 'regexPattern'[, maxCount, numberOfLinesBefore, numberOfLinesAfter, 'defaultValue', 'resultDelimiter'])}
+
+Function: _varPath
+Syntax:   ${_varPath('variableName'[, 'fileExtension'])}
+
+Function: _varCsvRecordCount
+Syntax:   ${_varCsvRecordCount('<variableName>')}
+
+Function: _varCsvRecordValueCount
+Syntax:   ${_varCsvRecordValueCount('variableName', recordIndex)}
+
+Function: _varCsvRecordValue
+Syntax:   ${_varCsvRecordValue('variableName', recordIndex, valueIndex)}
+
+Function: _varTsvRecordCount
+Syntax:   ${_varTsvRecordCount('<variableName>')}
+
+Function: _varTsvRecordValueCount
+Syntax:   ${_varTsvRecordValueCount('variableName', recordIndex)}
+
+Function: _varTsvRecordValue
+Syntax:   ${_varTsvRecordValue('variableName', recordIndex, valueIndex)}
+
+Function: _varDelimitedValueCount
+Syntax:   ${_varDelimitedValueCount('variableName', ['delimiter', splitPreserveAllTokens])}
+
+Function: _varDelimitedValue
+Syntax:   ${_varDelimitedValue('variableName', valueIndex, ['delimiter', splitPreserveAllTokens])}
+
+Function: _random
+Syntax:   ${_random([max, min])
+
+Function: _siblingid
+Syntax:   ${_siblingid('sibling_name')
+
+Function: _varLookup
+Syntax:   ${_varLookup('sibling_name', 'variable_name'[,'def'])
+
+Function: _resolve
+Syntax:   ${_resolve('variable_name', 'default_value')
+
+Function: _resolveadv
+Syntax:   ${_resolveadv('variable_name', 'default_value', [use_default_if_blank])
+
+Function: _convertArrayFieldVariable
+Syntax:   ${_convertArrayFieldVariable('arrayFieldVariableName'[,'delimiter', 'separator', 'keyQuote', 'valueQuote'])
+
+Function: _getArrayFieldVariableValue
+Syntax:   ${_getArrayFieldVariableValue('arrayFieldVariableName', 'name')
+
+Function: _responseRaw
+Syntax:   ${_responseRaw(['default_value'])
+
+Function: _responseRawFromTask
+Syntax:   ${_responseRawFromTask('siblingName'[,'defaultValue'])
+
+Function: _responseXPath
+Syntax:   ${_responseXPath('xPathExpression'[,'defaultValue','delimiter',prettyPrint])
+
+Function: _responseXPathFromTask
+Syntax:   ${_responseXPathFromTask('siblingName','xPathExpression'[,'defaultValue','delimiter',prettyPrint])
+
+Function: _responseJsonPath
+Syntax:   ${_responseJsonPath('pathExpression'[,'defaultValue','delimiter',prettyPrint])
+
+Function: _responseJsonPathFromTask
+Syntax:   ${_responseJsonPathFromTask('siblingName','pathExpression'[,'defaultValue','delimiter',prettyPrint])
+
+Function: _responseJsonPathAsArray
+Syntax:   ${_responseJsonPathAsArray('pathExpression'[,'defaultValue',prettyPrint])
+
+Function: _responseJsonPathAsArrayFromTask
+Syntax:   ${_responseJsonPathAsArrayFromTask('siblingName','pathExpression'[,'defaultValue',prettyPrint])

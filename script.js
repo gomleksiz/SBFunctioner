@@ -1,0 +1,426 @@
+let functionSyntax = {};
+let validFunctionNames = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('functions.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            functionSyntax = data;
+            validFunctionNames = Object.keys(functionSyntax);
+            console.log("Function syntax loaded successfully.");
+        })
+        .catch(error => {
+            console.error('Error loading function syntax:', error);
+            const resultsDiv = document.getElementById('validationResults');
+            resultsDiv.innerHTML = `<p class="error">Error loading function definitions. Please check console or try again later.</p>`;
+            resultsDiv.style.display = 'block';
+        });
+
+    const inputElement = document.getElementById('functionInput');
+    if (inputElement) {
+        inputElement.addEventListener('input', validateFunction);
+    } else {
+        console.error("Element with ID 'functionInput' not found.");
+    }
+});
+
+function findAllFunctionOccurrences(input) {
+    const occurrences = [];
+    const allFunctions = [];
+    const functionRegex = /(_{1,3})(\w+)\s*\(/g;
+    let match;
+
+    while ((match = functionRegex.exec(input)) !== null) {
+        const prefix = match[1];
+        const funcName = match[2];
+        const canonicalName = `_${funcName}`;
+
+        if (validFunctionNames.includes(canonicalName) && functionSyntax.hasOwnProperty(canonicalName)) {
+            allFunctions.push({
+                name: canonicalName,
+                prefix: prefix,
+                index: match.index,
+                syntax: functionSyntax[canonicalName],
+                nestingLevel: null,
+                context: null,
+                expectedUnderscores: null,
+                actualUnderscores: prefix.length
+            });
+        }
+    }
+
+    const dollarBracePositions = [];
+    let inString = false;
+    let stringChar = '';
+
+    for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const nextChar = input[i+1] || '';
+
+        if ((char === "'" || char === '"') && (i === 0 || input[i-1] !== '\\')) {
+            if (!inString) {
+                inString = true;
+                stringChar = char;
+            } else if (char === stringChar) {
+                inString = false;
+            }
+        }
+
+        if (char === '$' && nextChar === '{') {
+            dollarBracePositions.push(i);
+        }
+    }
+
+    allFunctions.forEach(func => {
+        let nestingLevel = 0;
+
+        for (const dollarBracePos of dollarBracePositions) {
+            if (dollarBracePos < func.index) {
+                nestingLevel++;
+            }
+        }
+
+        if (nestingLevel > 0) {
+            nestingLevel--;
+        }
+
+        const context = nestingLevel > 0 ? 'brace' : 'standalone';
+        const expectedUnderscores = nestingLevel + 1;
+        func.nestingLevel = nestingLevel;
+        func.context = context;
+        func.expectedUnderscores = expectedUnderscores;
+        occurrences.push(func);
+    });
+
+    let stack = [];
+    let nestingLevels = new Map();
+
+    inString = false;
+    stringChar = '';
+    let currentLevel = 0;
+
+    for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const nextChar = input[i+1] || '';
+
+        if ((char === "'" || char === '"') && (i === 0 || input[i-1] !== '\\')) {
+            if (!inString) {
+                inString = true;
+                stringChar = char;
+            } else if (char === stringChar) {
+                inString = false;
+            }
+        }
+
+        if (char === '$' && nextChar === '{') {
+            currentLevel++;
+            stack.push(i);
+        } else if (char === '}' && stack.length > 0) {
+            const openPosition = stack.pop();
+            const closedSection = input.substring(openPosition, i + 1);
+            nestingLevels.set([openPosition, i], currentLevel - 1);
+            currentLevel--;
+        }
+    }
+
+    occurrences.forEach(func => {
+        let functionLevel = 0;
+        let smallestSectionSize = Infinity;
+
+        for (const [[start, end], level] of nestingLevels.entries()) {
+            if (func.index > start && func.index < end) {
+                const sectionSize = end - start;
+                if (sectionSize < smallestSectionSize) {
+                    smallestSectionSize = sectionSize;
+                    functionLevel = level;
+                }
+            }
+        }
+
+        func.nestingLevel = functionLevel;
+        func.expectedUnderscores = functionLevel + 1;
+    });
+
+    if (occurrences.length > 0) {
+        const outermostFunc = occurrences.find(f => f.nestingLevel === 0);
+        if (outermostFunc) {
+            const outerFuncStart = input.indexOf('(', outermostFunc.index);
+            const outerFuncEnd = findMatchingClosingBracket(input, outerFuncStart);
+            if (outerFuncStart !== -1 && outerFuncEnd !== -1) {
+                const paramsStr = input.substring(outerFuncStart + 1, outerFuncEnd);
+                const paramPositions = splitByCommas(paramsStr);
+                paramPositions.forEach((paramRange, paramIndex) => {
+                    const paramStart = outerFuncStart + 1 + paramRange[0];
+                    const paramEnd = outerFuncStart + 1 + paramRange[1];
+                    occurrences.forEach(func => {
+                        if (func.index > paramStart && func.index < paramEnd) {
+                            let levelInParam = 0;
+                            let inParamString = false;
+                            let paramStringChar = '';
+                            for (let i = paramStart; i < func.index; i++) {
+                                const char = input[i];
+                                const nextChar = input[i+1] || '';
+                                if ((char === "'" || char === '"') && (i === 0 || input[i-1] !== '\\')) {
+                                    if (!inParamString) {
+                                        inParamString = true;
+                                        paramStringChar = char;
+                                    } else if (char === paramStringChar) {
+                                        inParamString = false;
+                                    }
+                                }
+                                if (char === '$' && nextChar === '{') {
+                                    levelInParam++;
+                                }
+                            }
+                            if (levelInParam === 1) {
+                                func.nestingLevel = 1;
+                                func.expectedUnderscores = 2;
+                            }
+                        }
+                    });
+                });
+            }
+        }
+    }
+
+    function findMatchingClosingBracket(str, openPos) {
+        let depth = 1;
+        for (let i = openPos + 1; i < str.length; i++) {
+            if (str[i] === '(') depth++;
+            else if (str[i] === ')') {
+                depth--;
+                if (depth === 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    function splitByCommas(str) {
+        const positions = [];
+        let start = 0;
+        let depth = 0;
+        let inParamString = false;
+        let paramStringChar = '';
+        for (let i = 0; i < str.length; i++) {
+            const char = str[i];
+            if ((char === "'" || char === '"') && (i === 0 || str[i-1] !== '\\')) {
+                if (!inParamString) {
+                    inParamString = true;
+                    paramStringChar = char;
+                } else if (char === paramStringChar) {
+                    inParamString = false;
+                }
+            }
+            if (!inParamString) {
+                if (char === '(' || char === '[' || char === '{') {
+                    depth++;
+                } else if (char === ')' || char === ']' || char === '}') {
+                    depth--;
+                } else if (char === ',' && depth === 0) {
+                    positions.push([start, i]);
+                    start = i + 1;
+                }
+            }
+        }
+        if (start < str.length) {
+            positions.push([start, str.length]);
+        }
+        return positions;
+    }
+
+    return occurrences;
+}
+
+function checkBalance(str) {
+    const stack = [];
+    const open = ['(', '{', '['];
+    const close = [')', '}', ']'];
+    const map = { ')': '(', '}': '{', ']': '[' };
+
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (open.includes(char)) {
+            stack.push({ char: char, index: i });
+        } else if (close.includes(char)) {
+            if (stack.length === 0) {
+                return { balanced: false, type: char, index: i };
+            }
+            const lastOpen = stack.pop();
+            if (map[char] !== lastOpen.char) {
+                return { balanced: false, type: 'mismatch', expected: map[char], found: char, index: i };
+            }
+        }
+    }
+
+    if (stack.length > 0) {
+        const lastUnclosed = stack[stack.length - 1];
+        return { balanced: false, type: 'unclosed', expected: Object.keys(map).find(key => map[key] === lastUnclosed.char), found: 'end of input', index: lastUnclosed.index };
+    }
+
+    return { balanced: true };
+}
+
+function validateFunction() {
+    const input = document.getElementById('functionInput').value;
+    const resultsDiv = document.getElementById('validationResults');
+    const inputDisplayDiv = document.getElementById('inputDisplayArea');
+
+    resultsDiv.innerHTML = '';
+    inputDisplayDiv.innerHTML = '';
+    resultsDiv.style.display = 'none';
+    inputDisplayDiv.style.display = 'none';
+
+    if (Object.keys(functionSyntax).length === 0) {
+        resultsDiv.innerHTML = '<p class="info">Loading function definitions...</p>';
+        resultsDiv.style.display = 'block';
+        return;
+    }
+
+    let messages = [];
+    let hasErrors = false;
+    let errorIndices = [];
+
+    const balanceResult = checkBalance(input);
+    if (!balanceResult.balanced) {
+        hasErrors = true;
+        let errorMsg = '';
+        let errorIndex = balanceResult.index;
+        if (errorIndex !== undefined) {
+            errorIndices.push(errorIndex);
+        }
+        if (balanceResult.type === 'mismatch') {
+            errorMsg = `<p class="error">Error: Mismatched bracket. Found '${balanceResult.found}' but expected a match for '${balanceResult.expected}'.</p>`;
+        } else if (balanceResult.type === 'unclosed'){
+            errorMsg = `<p class="error">Error: Unclosed bracket '${balanceResult.expected}'.</p>`;
+        } else {
+            errorMsg = `<p class="error">Error: Unexpected closing bracket '${balanceResult.type}'.</p>`;
+        }
+        messages.push(errorMsg);
+    } else {
+        messages.push('<p class="success">Brackets and Parentheses are balanced.</p>');
+    }
+
+    const allDetectedFunctions = findAllFunctionOccurrences(input);
+    const uniqueFunctionNames = [...new Set(allDetectedFunctions.map(f => f.name))];
+    let validationErrors = [];
+
+    allDetectedFunctions.forEach(func => {
+        if (func.context === 'brace' && func.actualUnderscores !== func.expectedUnderscores) {
+            validationErrors.push({
+                message: `Validation Error: Function ${func.name} at nesting level ${func.nestingLevel} should have ${func.expectedUnderscores} underscore(s) but has ${func.actualUnderscores}.`,
+                index: func.index,
+                length: func.name.length + func.actualUnderscores
+            });
+            errorIndices.push(func.index);
+            hasErrors = true;
+        }
+    });
+
+    const missingUnderscoreRegex = /\$\{\s*([^_\s])/g;
+    let missingMatch;
+
+    while ((missingMatch = missingUnderscoreRegex.exec(input)) !== null) {
+        if (missingMatch[1] && missingMatch[1] !== '}' && !missingMatch[1].match(/\s/)) {
+            validationErrors.push({
+                message: `Validation Error: Missing underscore after \${ at index ${missingMatch.index + 2}. Function calls inside \${...} must start with underscores.`,
+                index: missingMatch.index + 2,
+                length: 1
+            });
+            errorIndices.push(missingMatch.index + 2);
+            hasErrors = true;
+        }
+    }
+    
+    // Check for invalid function names
+    const invalidFunctionRegex = /\$\{\s*(_{1,3})(\w+)\s*\(/g;
+    let invalidMatch;
+    
+    while ((invalidMatch = invalidFunctionRegex.exec(input)) !== null) {
+        const prefix = invalidMatch[1];
+        const funcName = invalidMatch[2];
+        const canonicalName = `_${funcName}`;
+        
+        // Check if this is a valid function name
+        if (!validFunctionNames.includes(canonicalName)) {
+            validationErrors.push({
+                message: `Validation Error: Invalid function name '${prefix}${funcName}' at index ${invalidMatch.index + 2}. This is not a recognized function.`,
+                index: invalidMatch.index + 2 + prefix.length,
+                length: funcName.length
+            });
+            errorIndices.push(invalidMatch.index + 2 + prefix.length);
+            hasErrors = true;
+        }
+    }
+    
+    // Check for functions with more than 3 underscores
+    const tooManyUnderscoresRegex = /\$\{\s*(_{4,})(\w+)\s*\(/g;
+    let tooManyMatch;
+    
+    while ((tooManyMatch = tooManyUnderscoresRegex.exec(input)) !== null) {
+        const prefix = tooManyMatch[1];
+        const funcName = tooManyMatch[2];
+        
+        validationErrors.push({
+            message: `Validation Error: Too many underscores in '${prefix}${funcName}' at index ${tooManyMatch.index + 2}. Maximum allowed is 3 underscores.`,
+            index: tooManyMatch.index + 2,
+            length: prefix.length
+        });
+        errorIndices.push(tooManyMatch.index + 2);
+        hasErrors = true;
+    }
+
+    if (validationErrors.length > 0) {
+        messages.push('<h4>Validation Errors:</h4>');
+        validationErrors.forEach(error => {
+            messages.push(`<p class="error">${error.message}</p>`);
+        });
+    }
+
+    if (uniqueFunctionNames.length > 0) {
+        messages.push('<h4>Detected Functions & Syntax Help:</h4>');
+        messages.push('<table class="function-table">');
+        messages.push('<tr><th>Function</th><th>Syntax</th></tr>');
+        uniqueFunctionNames.forEach(funcName => {
+            const funcData = allDetectedFunctions.find(f => f.name === funcName);
+            if (funcData) {
+                const escapedSyntax = funcData.syntax.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                messages.push(`<tr><td><strong>${funcName}</strong></td><td><code>${escapedSyntax}</code></td></tr>`);
+            }
+        });
+        messages.push('</table>');
+    } else if (!hasErrors && validationErrors.length === 0 && input.trim().length > 0) {
+        messages.push('<p class="info">No specific functions detected in the input.</p>');
+    }
+
+    if (input.trim().length > 0) {
+        if (errorIndices.length > 0) {
+            errorIndices.sort((a, b) => a - b);
+            let lastIdx = 0;
+            let displayStr = '';
+            errorIndices.forEach(errorIdx => {
+                if (errorIdx >= 0 && errorIdx < input.length) {
+                    displayStr += input.substring(lastIdx, errorIdx);
+                    displayStr += `<span class="highlight-error">${input.charAt(errorIdx)}</span>`;
+                    lastIdx = errorIdx + 1;
+                }
+            });
+            displayStr += input.substring(lastIdx);
+            inputDisplayDiv.innerHTML = displayStr;
+            inputDisplayDiv.className = '';
+        } else {
+            inputDisplayDiv.innerHTML = input;
+            inputDisplayDiv.className = 'highlight-success';
+        }
+        inputDisplayDiv.style.display = 'block';
+    }
+
+    if (messages.length > 0) {
+        resultsDiv.innerHTML = messages.join('');
+        resultsDiv.style.display = 'block';
+    }
+}
