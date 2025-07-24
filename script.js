@@ -522,7 +522,28 @@ function validateFunction() {
     }
 
     if (messages.length > 0) {
+        // Add a Fix button if there are errors
+        if (hasErrors) {
+            messages.push('<div class="button-group">');
+            messages.push('<button id="fixErrorBtn" class="fix-btn">Fix in Function Fixer</button>');
+            messages.push('</div>');
+        }
+        
         resultsDiv.innerHTML = messages.join('');
         resultsDiv.style.display = 'block';
+        
+        // Add event listener for the fix button if it exists
+        const fixBtn = document.getElementById('fixErrorBtn');
+        if (fixBtn) {
+            fixBtn.addEventListener('click', () => {
+                const functionText = document.getElementById('functionInput').value;
+                
+                // Collect error messages
+                const errorMessages = validationErrors.map(error => error.message).join('\n');
+                
+                // Redirect to the fix page with the function and error messages
+                window.location.href = `fix.html?function=${encodeURIComponent(functionText)}&errors=${encodeURIComponent(errorMessages)}`;
+            });
+        }
     }
 }

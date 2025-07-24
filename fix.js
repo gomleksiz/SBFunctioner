@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const textInput = document.getElementById('textInput');
-    const generateBtn = document.getElementById('generateBtn');
+    const fixBtn = document.getElementById('fixBtn');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const loadingMessage = document.getElementById('loadingMessage');
     const generatedFunction = document.getElementById('generatedFunction');
@@ -20,16 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Loading animation messages
     const loadingMessages = [
-        "Analyzing your request...",
-        "Collecting function requirements...",
-        "Designing function structure...",
-        "Determining parameter types...",
-        "Planning return values...",
-        "Implementing function logic...",
-        "Applying Stonebranch best practices...",
-        "Generating alternative implementation...",
-        "Creating documentation...",
-        "Finalizing function code..."
+        "Analyzing the function...",
+        "Identifying syntax issues...",
+        "Checking function structure...",
+        "Examining parameter usage...",
+        "Validating return statements...",
+        "Optimizing code patterns...",
+        "Applying best practices...",
+        "Generating alternative solutions...",
+        "Preparing explanation...",
+        "Finalizing improvements..."
     ];
     
     let loadingAnimationInterval;
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Prepare request body
             const requestBody = { 
                 prompt: text,
-                action: 'generate'
+                action: 'fix'
             };
             
             // Add no_cache option if requested
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 requestBody.no_cache = true;
             }
             
-            // Call the AWS Lambda function to generate the function
+            // Call the AWS Lambda function to fix the function
             const response = await fetch('https://shpu5bt5nc665d2myhsilw6i6u0xhrbu.lambda-url.us-east-1.on.aws/', {
                 method: 'POST',
                 headers: {
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicator.style.display = 'none';
             stopLoadingAnimation();
             
-            // Display the generated function, alternate function, and reason
+            // Display the fixed function, alternate function, and reason
             functionOutput.textContent = responseData.function;
             alternateOutput.textContent = responseData.alternate_function || 'None provided';
             reasonOutput.textContent = responseData.reason || 'No explanation provided';
@@ -122,20 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
             
             return responseData;
         } catch (error) {
-            console.error('Error generating function:', error);
+            console.error('Error fixing function:', error);
             loadingIndicator.style.display = 'none';
             stopLoadingAnimation();
-            showError('An error occurred while generating the function. Please try again later.');
+            showError('An error occurred while fixing the function. Please try again later.');
             throw error;
         }
     }
     
-    // Event listener for generate button
-    generateBtn.addEventListener('click', async () => {
+    // Event listener for fix button
+    fixBtn.addEventListener('click', async () => {
         const text = textInput.value.trim();
         
         if (!text) {
-            showError('Please enter a description of the function you want to generate.');
+            showError('Please enter a function to fix.');
             return;
         }
         
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     copyBothBtn.addEventListener('click', () => {
         const functionText = functionOutput.textContent;
         const alternateText = alternateOutput.textContent;
-        const textToCopy = `Primary Function:\n${functionText}\n\nAlternate Function:\n${alternateText}`;
+        const textToCopy = `Fixed Function:\n${functionText}\n\nAlternate Function:\n${alternateText}`;
         
         navigator.clipboard.writeText(textToCopy)
             .then(() => {
@@ -229,11 +229,24 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.style.display = 'block';
     }
     
-    // Check if there's a function parameter in the URL (coming from validator page)
+    // Check if there's a function parameter and error messages in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const functionParam = urlParams.get('function');
+    const errorParam = urlParams.get('errors');
     
     if (functionParam) {
         textInput.value = functionParam;
+        
+        // If there are error messages, automatically trigger the fix button
+        if (errorParam) {
+            // Add error messages as a comment at the top of the text input
+            const errorMessages = decodeURIComponent(errorParam);
+            textInput.value = `/* Validation Errors:\n${errorMessages}\n*/\n\n${functionParam}`;
+            
+            // Automatically trigger the fix button after a short delay
+            setTimeout(() => {
+                fixBtn.click();
+            }, 500);
+        }
     }
 });

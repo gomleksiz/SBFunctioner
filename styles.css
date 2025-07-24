@@ -12,7 +12,20 @@ body {
 .container {
     text-align: center;
     width: 100%;
+    max-width: 100%;
     padding: 20px;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
 }
 
 textarea {
@@ -103,6 +116,10 @@ textarea {
 .nav-links {
     margin-bottom: 20px;
     text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
 }
 
 .nav-links a {
@@ -110,6 +127,7 @@ textarea {
     text-decoration: none;
     color: #333;
     border-radius: 4px;
+    white-space: nowrap;
 }
 
 .nav-links a.active {
@@ -119,6 +137,19 @@ textarea {
 
 .nav-links a:hover:not(.active) {
     background-color: #ddd;
+}
+
+/* Media query for small screens */
+@media screen and (max-width: 600px) {
+    .nav-links {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .nav-links a {
+        width: 80%;
+        margin-bottom: 5px;
+    }
 }
 
 /* Generator page styles */
@@ -151,10 +182,48 @@ textarea {
     background-color: #45a049;
 }
 
+#explainBtn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#explainBtn:hover {
+    background-color: #45a049;
+}
+
+#fixBtn, .fix-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#fixBtn:hover, .fix-btn:hover {
+    background-color: #45a049;
+}
+
 .loading-indicator {
     display: none;
     text-align: center;
     margin: 20px 0;
+}
+
+.loading-message {
+    margin-top: 10px;
+    min-height: 24px;
+    font-style: italic;
+    color: #555;
+    animation: fadeInOut 1s ease-in-out;
 }
 
 .spinner {
@@ -172,6 +241,13 @@ textarea {
     100% { transform: rotate(360deg); }
 }
 
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(10px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
 .generated-function {
     display: none;
     margin-top: 20px;
@@ -181,7 +257,7 @@ textarea {
     border-radius: 4px;
 }
 
-#functionOutput {
+#functionOutput, #alternateOutput {
     background-color: #f5f5f5;
     padding: 15px;
     border: 1px solid #ddd;
@@ -192,9 +268,30 @@ textarea {
     overflow-x: auto;
 }
 
+.reason-output {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: left;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    font-family: Arial, sans-serif;
+}
+
+.button-group {
+    margin: 10px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.button-group.main-buttons {
+    margin-top: 20px;
+}
+
 .copy-btn, .validate-btn {
     padding: 8px 16px;
-    margin-right: 10px;
     background-color: #2196F3;
     color: white;
     border: none;
@@ -204,6 +301,19 @@ textarea {
 
 .copy-btn:hover, .validate-btn:hover {
     background-color: #0b7dda;
+}
+
+.no-cache-btn {
+    padding: 8px 16px;
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.no-cache-btn:hover {
+    background-color: #F57C00;
 }
 
 .error-message {

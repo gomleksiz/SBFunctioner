@@ -68,12 +68,31 @@ def extract_examples(url):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     examples = []
-    for example in soup.find_all(['pre', 'code']):
-        text = example.get_text()
-        lines_with_dollar_brace = [line for line in text.splitlines() if '${' in line]
-        examples.extend(lines_with_dollar_brace)
-
-    return examples
+    # Find all pre tags
+    for pre_tag in soup.find_all('pre'):
+        text = pre_tag.get_text()
+        # Extract lines that start with ${
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith('${'):
+                examples.append(line)
+    
+    # Also look for code tags that might contain examples
+    for code_tag in soup.find_all('code'):
+        text = code_tag.get_text()
+        # Extract lines that start with ${
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith('${'):
+                examples.append(line)
+    
+    # Remove duplicates while preserving order
+    unique_examples = []
+    for example in examples:
+        if example not in unique_examples:
+            unique_examples.append(example)
+    
+    return unique_examples
 
 def extract_function_names(lines):
     function_names = set()
@@ -97,8 +116,32 @@ if __name__ == "__main__":
         print("Could not extract syntax information from tables.")
 
     print("\n--- Extracting Examples Containing '${' ---")
-    examples = extract_examples(url) 
-    function_names = extract_function_names(examples) 
-    print("Extracted Function Names:")
-    for name in function_names:
-        print(name)
+    examples = extract_examples(url)
+    print(f"Found {len(examples)} unique examples")
+    
+    # Write examples to examples.txt file
+    with open('examples.txt', 'w') as f:
+        for example in examples:
+            f.write(example + '\n')
+    print(f"Examples written to examples.txt")
+    
+    function_names = extract_function_names(examples)
+    print(f"Found {len(function_names)} unique function names")
+    
+    # Create a dictionary for JSON output
+    functions_dict = {}
+    for name in sorted(function_names):
+        # Find the first example that uses this function
+        for example in examples:
+            if re.search(r'\${(?:__+)?' + name + r'\(', example):
+                functions_dict[name] = example
+                break
+        # If no example found, use the function name
+        if name not in functions_dict:
+            functions_dict[name] = f"${{{name}}}(...)"
+    
+    # Write to JSON file
+    import json
+    with open('examples.json', 'w') as f:
+        json.dump(functions_dict, f, indent=4)
+    print(f"Function examples written to examples.json")

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Explainer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stonebranch Function Explainer</h1>
+        <div class="nav-links">
+            <a href="index.html">Function Validator</a>
+            <a href="generate.html">Function Generator</a>
+            <a href="explain.html" class="active">Function Explainer</a>
+            <a href="fix.html">Function Fixer</a>
+        </div>
+        
+        <div class="generator-container">
+            <textarea id="textInput" placeholder="Enter the function you want to explain..."></textarea>
+            <button id="explainBtn">Explain Function</button>
+            
+            <div id="loadingIndicator" class="loading-indicator">
+                <div class="spinner"></div>
+                <p>Explaining function...</p>
+            </div>
+            
+            <div id="explanationResult" class="generated-function">
+                <h3>Explanation:</h3>
+                <div id="explanationOutput" class="reason-output"></div>
+                
+                <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+    <script src="explain.js"></script>
+</body>
+</html>

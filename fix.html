@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Function Generator</title>
+    <title>Function Fixer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Stonebranch Function Generator</h1>
+        <h1>Stonebranch Function Fixer</h1>
         <div class="nav-links">
             <a href="index.html">Function Validator</a>
-            <a href="generate.html" class="active">Function Generator</a>
+            <a href="generate.html">Function Generator</a>
             <a href="explain.html">Function Explainer</a>
-            <a href="fix.html">Function Fixer</a>
+            <a href="fix.html" class="active">Function Fixer</a>
         </div>
         
         <div class="generator-container">
-            <textarea id="textInput" placeholder="Describe the function you want to generate..."></textarea>
-            <button id="generateBtn">Generate Function</button>
+            <textarea id="textInput" placeholder="Enter the function you want to fix..."></textarea>
+            <button id="fixBtn">Fix Function</button>
             
             <div id="loadingIndicator" class="loading-indicator">
                 <div class="spinner"></div>
-                <p>Generating function...</p>
+                <p>Fixing function...</p>
                 <div id="loadingMessage" class="loading-message"></div>
             </div>
             
             <div id="generatedFunction" class="generated-function">
-                <h3>Generated Function:</h3>
+                <h3>Fixed Function:</h3>
                 <pre id="functionOutput"></pre>
                 <div class="button-group">
                     <button id="copyPrimaryBtn" class="copy-btn">Copy to Clipboard</button>
@@ -53,6 +53,6 @@
             <div id="errorMessage" class="error-message"></div>
         </div>
     </div>
-    <script src="generate.js"></script>
+    <script src="fix.js"></script>
 </body>
 </html>
