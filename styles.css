@@ -1,16 +1,22 @@
-/* Stonebranch-inspired Color Variables */
+/* Official Stonebranch Brand Color Palette */
 :root {
-    --stonebranch-primary: #1a365d;     /* Deep blue */
-    --stonebranch-secondary: #2c5aa0;   /* Medium blue */
-    --stonebranch-accent: #4a90e2;      /* Light blue */
-    --stonebranch-light: #e8f4fd;       /* Very light blue */
-    --stonebranch-white: #ffffff;
-    --stonebranch-gray: #64748b;
-    --stonebranch-dark-gray: #334155;
-    --stonebranch-success: #059669;
-    --stonebranch-warning: #d97706;
-    --stonebranch-error: #dc2626;
+    --stonebranch-primary: #186CDA;     /* Primary blue */
+    --stonebranch-secondary: #0B3876;   /* Dark blue */
+    --stonebranch-accent: #05B8D8;      /* Cyan accent */
+    --stonebranch-orange: #FF7154;      /* Brand orange */
+    --stonebranch-blue: #008CFF;        /* Bright blue */
+    --stonebranch-yellow: #FFCD76;      /* Brand yellow */
+    --stonebranch-purple: #6060FA;      /* Brand purple */
+    --stonebranch-green: #26B68B;       /* Brand green */
+    --stonebranch-dark: #0C101A;        /* Dark text/backgrounds */
+    --stonebranch-gray: #434C59;        /* Medium gray */
+    --stonebranch-white: #ffffff;       /* White */
+    --stonebranch-light: #f0f9ff;       /* Very light blue tint */
+    --stonebranch-success: #26B68B;     /* Using brand green for success */
+    --stonebranch-warning: #FFCD76;     /* Using brand yellow for warning */
+    --stonebranch-error: #FF7154;       /* Using brand orange for error */
     --stonebranch-gradient: linear-gradient(135deg, var(--stonebranch-primary) 0%, var(--stonebranch-secondary) 100%);
+    --stonebranch-accent-gradient: linear-gradient(135deg, var(--stonebranch-accent) 0%, var(--stonebranch-blue) 100%);
 }
 
 /* Base Styles */
@@ -24,7 +30,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--stonebranch-gradient);
     min-height: 100vh;
-    color: var(--stonebranch-dark-gray);
+    color: var(--stonebranch-dark);
     line-height: 1.6;
 }
 
@@ -65,7 +71,7 @@ h1::after {
     transform: translateX(-50%);
     width: 60px;
     height: 4px;
-    background: var(--stonebranch-accent);
+    background: var(--stonebranch-accent-gradient);
     border-radius: 2px;
 }
 
@@ -130,7 +136,7 @@ textarea, #functionInput, #textInput {
     border: 2px solid var(--stonebranch-light);
     border-radius: 12px;
     background: var(--stonebranch-white);
-    color: var(--stonebranch-dark-gray);
+    color: var(--stonebranch-dark);
     resize: vertical;
     transition: all 0.3s ease;
     margin-bottom: 20px;
@@ -139,7 +145,7 @@ textarea, #functionInput, #textInput {
 textarea:focus, #functionInput:focus, #textInput:focus {
     outline: none;
     border-color: var(--stonebranch-accent);
-    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+    box-shadow: 0 0 0 4px rgba(24, 108, 218, 0.1);
 }
 
 /* Button Styles */
@@ -171,7 +177,7 @@ button, #generateBtn, #explainBtn, #fixBtn {
 
 button:hover, #generateBtn:hover, #explainBtn:hover, #fixBtn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+    box-shadow: 0 6px 20px rgba(24, 108, 218, 0.4);
 }
 
 /* Secondary Buttons */
@@ -195,16 +201,30 @@ button:hover, #generateBtn:hover, #explainBtn:hover, #fixBtn:hover {
 }
 
 .fix-btn:hover {
-    background: #047857;
+    background: #1e9d6b;
 }
 
 .no-cache-btn {
     background: var(--stonebranch-warning);
     color: var(--stonebranch-white);
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    margin: 5px;
 }
 
 .no-cache-btn:hover {
-    background: #b45309;
+    background: #e6a654;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 205, 118, 0.4);
 }
 
 /* Display Areas */
@@ -423,7 +443,7 @@ button:hover, #generateBtn:hover, #explainBtn:hover, #fixBtn:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: linear-gradient(135deg, rgba(255, 205, 118, 0.2) 0%, rgba(255, 205, 118, 0.15) 100%);
     border-top: 3px solid var(--stonebranch-warning);
     padding: 12px 20px;
     font-size: 14px;
@@ -434,7 +454,7 @@ button:hover, #generateBtn:hover, #explainBtn:hover, #fixBtn:hover {
 
 .llm-warning p {
     margin: 0;
-    color: #92400e;
+    color: var(--stonebranch-dark);
     font-weight: 500;
 }
 
