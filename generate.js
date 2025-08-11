@@ -201,6 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for validate primary function button
     validatePrimaryBtn.addEventListener('click', () => {
         const functionText = functionOutput.textContent;
+        console.log("Validate Primary - Function text:", functionText);
+        console.log("Validate Primary - Text length:", functionText.length);
+        
+        if (functionText.trim().length === 0) {
+            showError('No function content to validate. Please generate a function first.');
+            return;
+        }
         
         // Redirect to the validator page with the primary function text
         window.location.href = `index.html?function=${encodeURIComponent(functionText)}`;
@@ -209,6 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for validate alternate function button
     validateAlternateBtn.addEventListener('click', () => {
         const functionText = alternateOutput.textContent;
+        console.log("Validate Alternate - Function text:", functionText);
+        console.log("Validate Alternate - Text length:", functionText.length);
+        
+        if (functionText.trim().length === 0) {
+            showError('No alternate function content to validate. Please generate a function first.');
+            return;
+        }
         
         // Redirect to the validator page with the alternate function text
         window.location.href = `index.html?function=${encodeURIComponent(functionText)}`;

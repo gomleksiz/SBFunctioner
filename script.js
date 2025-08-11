@@ -2,6 +2,19 @@ let functionSyntax = {};
 let validFunctionNames = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // First, check if there's a function parameter in the URL and populate input immediately
+    const urlParams = new URLSearchParams(window.location.search);
+    const functionParam = urlParams.get('function');
+    
+    if (functionParam) {
+        console.log("Function parameter found in URL:", functionParam);
+        const inputElement = document.getElementById('functionInput');
+        if (inputElement) {
+            inputElement.value = functionParam;
+            console.log("Function parameter set in input field");
+        }
+    }
+    
     fetch('functions.json')
         .then(response => {
             if (!response.ok) {
@@ -14,17 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
             validFunctionNames = Object.keys(functionSyntax);
             console.log("Function syntax loaded successfully.");
             
-            // Check if there's a function parameter in the URL (coming from generator page)
-            const urlParams = new URLSearchParams(window.location.search);
-            const functionParam = urlParams.get('function');
-            
+            // Now trigger validation if we had a function parameter
             if (functionParam) {
-                const inputElement = document.getElementById('functionInput');
-                if (inputElement) {
-                    inputElement.value = functionParam;
-                    // Trigger validation
-                    validateFunction();
-                }
+                console.log("Triggering validation for URL parameter");
+                validateFunction();
             }
         })
         .catch(error => {

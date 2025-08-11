@@ -16,25 +16,28 @@
             <a href="fix.html">Function Fixer</a>
         </div>
         
-        <div class="generator-container">
-            <textarea id="textInput" placeholder="Enter the function you want to explain..."></textarea>
-            <button id="explainBtn">Explain Function</button>
-            
-            <div id="loadingIndicator" class="loading-indicator">
-                <div class="spinner"></div>
-                <p>Explaining function...</p>
-            </div>
-            
-            <div id="explanationResult" class="generated-function">
-                <h3>Explanation:</h3>
-                <div id="explanationOutput" class="reason-output"></div>
-                
-                <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
-            </div>
-            
-            <div id="errorMessage" class="error-message"></div>
+        <textarea id="textInput" placeholder="Enter the function you want to explain..."></textarea>
+        <button id="explainBtn">Explain Function</button>
+        
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Explaining function...</p>
         </div>
+        
+        <div id="explanationResult" class="generated-function">
+            <h3>Explanation:</h3>
+            <div id="explanationOutput" class="reason-output"></div>
+            
+            <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
     </div>
+    
+    <footer class="llm-warning">
+        <p><strong>⚠️ AI-Generated Content Warning:</strong> This page uses AI to explain functions. All explanations may contain errors and should be carefully reviewed. Always verify against official Stonebranch documentation.</p>
+    </footer>
+    
     <script src="explain.js"></script>
 </body>
 </html>

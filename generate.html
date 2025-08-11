@@ -16,43 +16,46 @@
             <a href="fix.html">Function Fixer</a>
         </div>
         
-        <div class="generator-container">
-            <textarea id="textInput" placeholder="Describe the function you want to generate..."></textarea>
-            <button id="generateBtn">Generate Function</button>
-            
-            <div id="loadingIndicator" class="loading-indicator">
-                <div class="spinner"></div>
-                <p>Generating function...</p>
-                <div id="loadingMessage" class="loading-message"></div>
-            </div>
-            
-            <div id="generatedFunction" class="generated-function">
-                <h3>Generated Function:</h3>
-                <pre id="functionOutput"></pre>
-                <div class="button-group">
-                    <button id="copyPrimaryBtn" class="copy-btn">Copy to Clipboard</button>
-                    <button id="validatePrimaryBtn" class="validate-btn">Validate Primary Function</button>
-                </div>
-                
-                <h3>Alternate Function:</h3>
-                <pre id="alternateOutput"></pre>
-                <div class="button-group">
-                    <button id="copyAlternateBtn" class="copy-btn">Copy to Clipboard</button>
-                    <button id="validateAlternateBtn" class="validate-btn">Validate Alternate Function</button>
-                </div>
-                
-                <h3>Explanation:</h3>
-                <div id="reasonOutput" class="reason-output"></div>
-                
-                <div class="button-group main-buttons">
-                    <button id="copyBothBtn" class="copy-btn">Copy Both Functions</button>
-                    <button id="noCacheBtn" class="no-cache-btn" style="display: none;">Run with No Cache</button>
-                </div>
-            </div>
-            
-            <div id="errorMessage" class="error-message"></div>
+        <textarea id="textInput" placeholder="Describe the function you want to generate..."></textarea>
+        <button id="generateBtn">Generate Function</button>
+        
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Generating function...</p>
+            <div id="loadingMessage" class="loading-message"></div>
         </div>
+        
+        <div id="generatedFunction" class="generated-function">
+            <h3>Generated Function:</h3>
+            <pre id="functionOutput"></pre>
+            <div class="button-group">
+                <button id="copyPrimaryBtn" class="copy-btn">Copy to Clipboard</button>
+                <button id="validatePrimaryBtn" class="validate-btn">Validate Primary Function</button>
+            </div>
+            
+            <h3>Alternate Function:</h3>
+            <pre id="alternateOutput"></pre>
+            <div class="button-group">
+                <button id="copyAlternateBtn" class="copy-btn">Copy to Clipboard</button>
+                <button id="validateAlternateBtn" class="validate-btn">Validate Alternate Function</button>
+            </div>
+            
+            <h3>Explanation:</h3>
+            <div id="reasonOutput" class="reason-output"></div>
+            
+            <div class="button-group main-buttons">
+                <button id="copyBothBtn" class="copy-btn">Copy Both Functions</button>
+                <button id="noCacheBtn" class="no-cache-btn" style="display: none;">Run with No Cache</button>
+            </div>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
     </div>
+    
+    <footer class="llm-warning">
+        <p><strong>⚠️ AI-Generated Content Warning:</strong> This page uses AI to generate functions. All generated content may contain errors and should be carefully reviewed and validated before use. Always verify against official Stonebranch documentation.</p>
+    </footer>
+    
     <script src="generate.js"></script>
 </body>
 </html>
