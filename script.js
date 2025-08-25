@@ -618,17 +618,50 @@ function validateFunction() {
             // Add any remaining text after the last error
             displayStr += input.substring(lastIdx);
             
+            // Add floating fix button if we're not on fix page
+            if (!window.location.pathname.includes('fix.html')) {
+                if (hasErrors) {
+                    displayStr += '<button id="fixErrorBtn" class="fix-btn floating-fix-btn">Fix Function →</button>';
+                } else {
+                    displayStr += '<button id="fixErrorBtn" class="fix-btn floating-fix-btn" disabled>Fix Function →</button>';
+                }
+            }
+            
             inputDisplayDiv.innerHTML = displayStr;
             inputDisplayDiv.className = '';
         } else {
-            inputDisplayDiv.innerHTML = input;
+            let successDisplayStr = input;
+            // Add floating disabled fix button when no errors
+            if (!window.location.pathname.includes('fix.html')) {
+                successDisplayStr += '<button id="fixErrorBtn" class="fix-btn floating-fix-btn" disabled>Fix Function →</button>';
+            }
+            inputDisplayDiv.innerHTML = successDisplayStr;
             inputDisplayDiv.className = 'highlight-success';
         }
         inputDisplayDiv.style.display = 'block';
+        
+        // Add event listener for the fix button if it exists in the preview area
+        const fixBtn = document.getElementById('fixErrorBtn');
+        if (fixBtn && !fixBtn.disabled) {
+            fixBtn.addEventListener('click', () => {
+                let functionText = '';
+                if (editorView) {
+                    functionText = editorView.state.doc.toString();
+                } else if (window.getEditorValue) {
+                    functionText = window.getEditorValue();
+                }
+                
+                // Collect error messages
+                const errorMessages = validationErrors.map(error => error.message).join('\n');
+                
+                // Redirect to the fix page with the function and error messages
+                window.location.href = `fix.html?function=${encodeURIComponent(functionText)}&errors=${encodeURIComponent(errorMessages)}`;
+            });
+        }
     }
 
     if (messages.length > 0) {
-        // Fix button will be added directly to error panel
+        // Fix button will be added directly to preview area
         
         // Split messages into errors and functions
         const errorMessages = [];
@@ -655,13 +688,8 @@ function validateFunction() {
             errorMessages.push(...messages);
         }
         
-        // Add fix button to error panel if there are errors
+        // Display error messages (without fix button)
         let errorHtml = errorMessages.length > 0 ? errorMessages.join('') : '<h4>Validation Status</h4><p class="info">Enter a function to validate</p>';
-        
-        if (hasErrors && !window.location.pathname.includes('fix.html')) {
-            errorHtml += '<button id="fixErrorBtn" class="fix-btn">Fix Function →</button>';
-        }
-        
         errorsPanel.innerHTML = errorHtml;
         
         // Only update functions panel if functions have changed
@@ -673,24 +701,6 @@ function validateFunction() {
         // Update inline highlights
         updateInlineHighlights();
         
-        // Add event listener for the fix button if it exists
-        const fixBtn = document.getElementById('fixErrorBtn');
-        if (fixBtn) {
-            fixBtn.addEventListener('click', () => {
-                let functionText = '';
-                if (editorView) {
-                    functionText = editorView.state.doc.toString();
-                } else if (window.getEditorValue) {
-                    functionText = window.getEditorValue();
-                }
-                
-                // Collect error messages
-                const errorMessages = validationErrors.map(error => error.message).join('\n');
-                
-                // Redirect to the fix page with the function and error messages
-                window.location.href = `fix.html?function=${encodeURIComponent(functionText)}&errors=${encodeURIComponent(errorMessages)}`;
-            });
-        }
     } else {
         // Handle case where no messages but functions might have changed
         if (functionsChanged) {
@@ -735,7 +745,7 @@ function createAvailableFunctionsList() {
     functionsDiv.querySelectorAll('.function-item').forEach(item => {
         item.addEventListener('click', () => {
             const functionName = item.textContent;
-            const insertText = functionName + '(';
+            const insertText = '${' + functionName + '(';
             
             if (editorView) {
                 // CodeMirror mode

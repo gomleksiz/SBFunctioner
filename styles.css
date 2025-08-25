@@ -544,6 +544,31 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg), 0 0 20px rgba(38, 182, 139, 0.4);
 }
+.fix-btn:disabled {
+    opacity: 0.5;
+    background: var(--stonebranch-gray);
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Floating Fix Button */
+.floating-fix-btn {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    z-index: 10;
+    font-size: 12px;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(10px);
+    min-width: auto;
+}
+
+.floating-fix-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg), 0 0 15px rgba(38, 182, 139, 0.3);
+}
 
 .no-cache-btn {
     background: var(--gradient-warm);
@@ -582,9 +607,9 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     white-space: pre-wrap;
     word-break: break-all;
     overflow-wrap: break-word;
+    position: relative;
     min-height: 60px;
     display: none;
-    position: relative;
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow-sm);
 }
