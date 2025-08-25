@@ -16,10 +16,60 @@
             <a href="explain.html">Function Explainer</a>
             <a href="fix.html">Function Fixer</a>
         </div>
-        <textarea id="functionInput" placeholder="Enter function string here..."></textarea>
-        <div id="inputDisplayArea"></div>
-        <div id="validationResults"></div>
+        <div class="validator-layout">
+            <div class="main-content">
+                <div class="input-container">
+                    <div id="functionInput" placeholder="Enter function string here..."></div>
+                </div>
+                <div id="inputDisplayArea"></div>
+                <div class="validation-panels">
+                    <div id="validationErrors" class="error-panel">
+                        <!-- Validation errors will appear here -->
+                    </div>
+                    <div class="functions-panel">
+                        <div id="detectedFunctions">
+                            <!-- Detected functions will appear here -->
+                        </div>
+                        <div class="available-functions-section">
+                            <h4>Available Functions</h4>
+                            <input type="text" id="functionSearch" placeholder="Search functions..." class="function-search">
+                            <div id="availableFunctions" class="function-list">
+                                <!-- Simple function names list will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <script type="module">
+        try {
+            // Import minimal CodeMirror 6 modules without basicSetup to avoid conflicts
+            const { EditorView, keymap, highlightSpecialChars, drawSelection, highlightSelectionMatches } = await import("https://esm.sh/@codemirror/view@6");
+            const { EditorState } = await import("https://esm.sh/@codemirror/state@6");
+            const { history, defaultKeymap, historyKeymap } = await import("https://esm.sh/@codemirror/commands@6");
+            const { bracketMatching } = await import("https://esm.sh/@codemirror/language@6");
+            const { defaultHighlightStyle, syntaxHighlighting } = await import("https://esm.sh/@codemirror/language@6");
+            
+            // Create minimal setup manually
+            const minimalSetup = [
+                highlightSpecialChars(),
+                history(),
+                drawSelection(),
+                syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
+                bracketMatching(),
+                keymap.of([...defaultKeymap, ...historyKeymap]),
+                EditorView.lineWrapping
+            ];
+            
+            // Make CodeMirror available globally
+            window.CodeMirror = { EditorView, EditorState, minimalSetup };
+            console.log('CodeMirror modules loaded successfully');
+        } catch (error) {
+            console.error('Failed to load CodeMirror modules:', error);
+            window.CodeMirror = null;
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

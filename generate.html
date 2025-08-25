@@ -27,25 +27,34 @@
         </div>
         
         <div id="generatedFunction" class="generated-function">
-            <h3>Generated Function:</h3>
-            <pre id="functionOutput"></pre>
-            <div class="button-group">
-                <button id="copyPrimaryBtn" class="copy-btn">Copy to Clipboard</button>
-                <button id="validatePrimaryBtn" class="validate-btn">Validate Primary Function</button>
+            <div class="function-section">
+                <div class="function-header">
+                    <h3>Generated Function:</h3>
+                    <div class="function-controls">
+                        <button id="copyPrimaryBtn" class="copy-btn compact">Copy</button>
+                        <button id="validatePrimaryBtn" class="validate-btn compact">Validate</button>
+                    </div>
+                </div>
+                <pre id="functionOutput"></pre>
             </div>
             
-            <h3>Alternate Function:</h3>
-            <pre id="alternateOutput"></pre>
-            <div class="button-group">
-                <button id="copyAlternateBtn" class="copy-btn">Copy to Clipboard</button>
-                <button id="validateAlternateBtn" class="validate-btn">Validate Alternate Function</button>
+            <div class="function-section">
+                <div class="function-header">
+                    <h3>Alternate Function:</h3>
+                    <div class="function-controls">
+                        <button id="copyAlternateBtn" class="copy-btn compact">Copy</button>
+                        <button id="validateAlternateBtn" class="validate-btn compact">Validate</button>
+                    </div>
+                </div>
+                <pre id="alternateOutput"></pre>
             </div>
             
-            <h3>Explanation:</h3>
-            <div id="reasonOutput" class="reason-output"></div>
+            <div class="explanation-section">
+                <h3>Explanation:</h3>
+                <div id="reasonOutput" class="reason-output"></div>
+            </div>
             
-            <div class="button-group main-buttons">
-                <button id="copyBothBtn" class="copy-btn">Copy Both Functions</button>
+            <div class="main-controls">
                 <button id="noCacheBtn" class="no-cache-btn" style="display: none;">Run with No Cache</button>
             </div>
         </div>

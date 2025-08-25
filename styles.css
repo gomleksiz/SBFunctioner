@@ -92,8 +92,8 @@ body::before {
 /* Modern Container */
 .container {
     max-width: 1400px;
-    margin: var(--space-lg) auto;
-    padding: var(--space-xl);
+    margin: var(--space-sm) auto;
+    padding: var(--space-lg);
     background: rgba(255, 255, 255, 0.95);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
@@ -116,14 +116,14 @@ body::before {
 
 /* Modern Typography */
 h1 {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
     background: var(--gradient-primary);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-align: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-sm);
     position: relative;
     letter-spacing: -0.02em;
     line-height: 1.1;
@@ -167,17 +167,17 @@ h3::before {
 .nav-links {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-md);
-    margin: var(--space-2xl) 0;
+    gap: var(--space-sm);
+    margin: var(--space-lg) 0;
     padding: 0;
 }
 
 .nav-links a {
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
     text-decoration: none;
     color: var(--stonebranch-white);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     border-radius: var(--radius-lg);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -223,7 +223,7 @@ h3::before {
 textarea, #functionInput, #textInput {
     width: 100%;
     min-height: 200px;
-    padding: var(--space-lg);
+    padding: var(--space-md);
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     font-size: 18px;
     line-height: 1.6;
@@ -234,9 +234,195 @@ textarea, #functionInput, #textInput {
     color: var(--stonebranch-dark);
     resize: vertical;
     transition: all 0.3s ease;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
     box-shadow: var(--shadow-md);
     position: relative;
+}
+
+/* Validator Page Specific Layout */
+.validator-layout {
+    display: block;
+}
+
+.main-content {
+    width: 100%;
+}
+
+/* Input Container with CodeMirror */
+.input-container {
+    position: relative;
+    margin-bottom: var(--space-md);
+}
+
+/* CodeMirror Editor Styling */
+#functionInput {
+    min-height: 80px;
+    max-height: 120px;
+    margin-bottom: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) padding-box,
+                var(--gradient-accent) border-box;
+    overflow: hidden;
+}
+
+#functionInput .cm-editor {
+    max-height: 120px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+#functionInput .cm-content {
+    padding: var(--space-md);
+    min-height: 80px;
+}
+
+#functionInput .cm-editor.cm-focused {
+    outline: none;
+}
+
+#functionInput .cm-scroller {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+#functionInput::selection {
+    background: rgba(24, 108, 218, 0.3);
+}
+
+#functionInput::-moz-selection {
+    background: rgba(24, 108, 218, 0.3);
+}
+
+/* CodeMirror Error Highlighting */
+.cm-error-highlight {
+    background: linear-gradient(135deg, rgba(255, 113, 84, 0.4) 0%, rgba(255, 113, 84, 0.3) 100%);
+    border-bottom: 2px wavy var(--stonebranch-error);
+    border-radius: 2px;
+    position: relative;
+    animation: errorPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 0 1px rgba(255, 113, 84, 0.2);
+}
+
+.cm-success-highlight {
+    background: linear-gradient(135deg, rgba(38, 182, 139, 0.3) 0%, rgba(38, 182, 139, 0.2) 100%);
+    border-bottom: 1px solid var(--stonebranch-success);
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(38, 182, 139, 0.1);
+}
+
+/* Error Highlight Styles */
+.error-highlight {
+    background: linear-gradient(135deg, rgba(255, 113, 84, 0.4) 0%, rgba(255, 113, 84, 0.3) 100%);
+    border-bottom: 2px wavy var(--stonebranch-error);
+    border-radius: 2px;
+    position: relative;
+    animation: errorPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 0 1px rgba(255, 113, 84, 0.2);
+}
+
+@keyframes errorPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* Success Highlight Styles */
+.success-highlight {
+    background: linear-gradient(135deg, rgba(38, 182, 139, 0.3) 0%, rgba(38, 182, 139, 0.2) 100%);
+    border-bottom: 1px solid var(--stonebranch-success);
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(38, 182, 139, 0.1);
+}
+
+/* Side-by-side validation panels */
+.validation-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.error-panel, .functions-panel {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(24, 108, 218, 0.1);
+    padding: var(--space-md);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    min-height: 300px;
+    overflow-y: visible;
+}
+
+.error-panel {
+    border-left: 4px solid var(--stonebranch-error);
+    display: none;
+}
+
+.functions-panel {
+    border-left: 4px solid var(--stonebranch-success);
+}
+
+/* Available Functions Section */
+.available-functions-section {
+    border-top: 1px solid rgba(24, 108, 218, 0.1);
+    padding-top: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.available-functions-section h4 {
+    font-size: 1rem;
+    margin: 0 0 var(--space-xs) 0;
+    color: var(--stonebranch-primary);
+    font-weight: 600;
+}
+
+.function-search {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid rgba(24, 108, 218, 0.2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: var(--space-sm);
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+}
+
+.function-search:focus {
+    outline: none;
+    border-color: var(--stonebranch-primary);
+    background: var(--stonebranch-white);
+    box-shadow: 0 0 0 2px rgba(24, 108, 218, 0.1);
+}
+
+.function-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.function-item {
+    padding: 2px var(--space-xs);
+    margin: 1px 0;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--stonebranch-primary);
+    background: rgba(24, 108, 218, 0.05);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.function-item:hover {
+    background: rgba(24, 108, 218, 0.1);
+    border-color: rgba(24, 108, 218, 0.2);
+    transform: translateX(2px);
+}
+
+.function-item.hidden {
+    display: none;
 }
 
 textarea:focus, #functionInput:focus, #textInput:focus {
@@ -278,7 +464,7 @@ button:disabled {
 button, #generateBtn, #explainBtn, #fixBtn {
     background: var(--gradient-primary);
     color: var(--stonebranch-white);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-sm);
 }
 
 button:hover, #generateBtn:hover, #explainBtn:hover, #fixBtn:hover {
@@ -311,6 +497,16 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     border: 2px solid var(--stonebranch-accent);
     margin: var(--space-xs);
     position: relative;
+}
+
+/* Compact Buttons */
+.copy-btn.compact, .validate-btn.compact {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    border-radius: var(--radius-sm);
+    min-width: auto;
 }
 
 .copy-btn::before, .validate-btn::before {
@@ -376,8 +572,8 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
 
 /* Modern Display Areas */
 #inputDisplayArea {
-    margin: var(--space-xl) 0;
-    padding: var(--space-xl);
+    margin: var(--space-md) 0;
+    padding: var(--space-lg);
     border: 2px dashed var(--stonebranch-accent);
     background: linear-gradient(135deg, rgba(5, 184, 216, 0.05) 0%, rgba(38, 182, 139, 0.05) 100%);
     border-radius: var(--radius-lg);
@@ -416,8 +612,8 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
 
 /* Modern Results Area */
 #validationResults, #explanationResult {
-    margin: var(--space-xl) 0;
-    padding: var(--space-xl);
+    margin: var(--space-md) 0;
+    padding: var(--space-lg);
     background: rgba(255, 255, 255, 0.8);
     border-radius: var(--radius-lg);
     border: 1px solid rgba(24, 108, 218, 0.1);
@@ -430,6 +626,56 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     overflow-wrap: break-word;
     font-size: 16px;
     line-height: 1.6;
+}
+
+/* Panel Content Styling */
+.error-panel h4, .functions-panel h4 {
+    font-size: 1rem;
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--stonebranch-dark);
+    font-weight: 600;
+}
+
+.error-panel .error, .error-panel .info {
+    font-size: 14px;
+    padding: var(--space-xs) var(--space-sm);
+    margin: var(--space-xs) 0;
+    border-radius: var(--radius-sm);
+}
+
+.error-panel .fix-btn {
+    font-size: 12px;
+    padding: var(--space-xs) var(--space-sm);
+    margin: var(--space-sm) 0 0 0;
+    background: var(--gradient-accent);
+    color: var(--stonebranch-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.error-panel .fix-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.functions-panel .function-table {
+    width: 100%;
+    font-size: 13px;
+    margin: var(--space-sm) 0;
+}
+
+.functions-panel .function-table th,
+.functions-panel .function-table td {
+    padding: var(--space-xs);
+    font-size: 12px;
+}
+
+.functions-panel .function-table code {
+    font-size: 11px;
+    padding: 1px var(--space-xs);
 }
 
 #validationResults::before, #explanationResult::before {
@@ -541,18 +787,92 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     max-width: 100%;
 }
 
+.function-table code.example {
+    background: linear-gradient(135deg, rgba(38, 182, 139, 0.1) 0%, rgba(38, 182, 139, 0.05) 100%);
+    color: var(--stonebranch-success);
+    border: 1px solid rgba(38, 182, 139, 0.2);
+    font-size: 13px;
+    display: block;
+    margin: 0;
+    padding: var(--space-xs);
+    line-height: 1.3;
+}
+
+.no-examples {
+    color: var(--stonebranch-gray);
+    font-style: italic;
+    font-size: 14px;
+}
+
+
 /* Modern Generated Function Cards */
 .generated-function {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
     border: 1px solid rgba(24, 108, 218, 0.1);
     border-radius: var(--radius-xl);
-    padding: var(--space-2xl);
-    margin: var(--space-xl) 0;
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
     box-shadow: var(--shadow-lg);
     display: none;
     backdrop-filter: blur(20px);
     position: relative;
     overflow: hidden;
+}
+
+/* Compact Function Sections */
+.function-section {
+    margin-bottom: var(--space-md);
+}
+
+.function-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+}
+
+.function-header h3 {
+    margin-bottom: 0;
+    padding-left: 0;
+    font-size: 1.2rem;
+}
+
+.function-header h3::before {
+    display: none;
+}
+
+.function-controls {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.explanation-section {
+    margin-bottom: var(--space-md);
+}
+
+.explanation-section h3 {
+    margin-bottom: var(--space-xs);
+    padding-left: 0;
+    font-size: 1.2rem;
+}
+
+.explanation-section h3::before {
+    display: none;
+}
+
+.main-controls {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+    padding-top: var(--space-sm);
+    border-top: 1px solid rgba(24, 108, 218, 0.1);
+    min-height: var(--space-xl);
+}
+
+/* Hide main-controls when empty or only hidden elements */
+.main-controls:empty,
+.main-controls:has(> *[style*="display: none"]) {
+    display: none;
 }
 
 .generated-function::before {
@@ -569,13 +889,13 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
 .generated-function pre {
     background: linear-gradient(135deg, rgba(12, 16, 26, 0.95) 0%, rgba(67, 76, 89, 0.95) 100%);
     color: #e2e8f0;
-    padding: var(--space-xl);
+    padding: var(--space-md);
     border-radius: var(--radius-md);
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     font-size: 16px;
     overflow-x: auto;
     border: 1px solid rgba(5, 184, 216, 0.3);
-    margin: var(--space-md) 0;
+    margin: 0;
     position: relative;
     box-shadow: var(--shadow-md);
     line-height: 1.6;
@@ -594,10 +914,10 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
 
 .reason-output {
     background: linear-gradient(135deg, rgba(96, 96, 250, 0.05) 0%, rgba(5, 184, 216, 0.05) 100%);
-    padding: var(--space-xl);
+    padding: var(--space-md);
     border-radius: var(--radius-md);
     border: 1px solid rgba(96, 96, 250, 0.2);
-    margin: var(--space-md) 0;
+    margin: 0;
     line-height: 1.8;
     position: relative;
     backdrop-filter: blur(10px);
@@ -731,19 +1051,19 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     left: 0;
     right: 0;
     background: linear-gradient(135deg, rgba(255, 205, 118, 0.95) 0%, rgba(255, 113, 84, 0.95) 100%);
-    border-top: 3px solid var(--stonebranch-warning);
-    padding: var(--space-md) var(--space-lg);
-    font-size: 14px;
+    border-top: 2px solid var(--stonebranch-warning);
+    padding: var(--space-xs) var(--space-md);
+    font-size: 12px;
     text-align: center;
     z-index: 1000;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
     backdrop-filter: blur(20px);
 }
 
 .llm-warning p {
     margin: 0;
     color: var(--stonebranch-dark);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .llm-warning strong {
@@ -804,6 +1124,30 @@ button:active::after, #generateBtn:active::after, #explainBtn:active::after, #fi
     
     .generated-function {
         padding: var(--space-lg);
+    }
+    
+    /* Stack validator layout on mobile */
+    .validation-panels {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+    
+    #functionInput {
+        min-height: 60px;
+        max-height: 80px;
+    }
+    
+    .input-highlights {
+        font-size: 16px;
+        padding: var(--space-md);
+    }
+    
+    .error-panel, .functions-panel {
+        height: 250px;
+    }
+    
+    .function-list {
+        max-height: 100px;
     }
 }
 

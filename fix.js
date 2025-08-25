@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const reasonOutput = document.getElementById('reasonOutput');
     const copyPrimaryBtn = document.getElementById('copyPrimaryBtn');
     const copyAlternateBtn = document.getElementById('copyAlternateBtn');
-    const copyBothBtn = document.getElementById('copyBothBtn');
     const validatePrimaryBtn = document.getElementById('validatePrimaryBtn');
     const validateAlternateBtn = document.getElementById('validateAlternateBtn');
     const noCacheBtn = document.getElementById('noCacheBtn');
@@ -179,24 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Event listener for copy both functions button
-    copyBothBtn.addEventListener('click', () => {
-        const functionText = functionOutput.textContent;
-        const alternateText = alternateOutput.textContent;
-        const textToCopy = `Fixed Function:\n${functionText}\n\nAlternate Function:\n${alternateText}`;
-        
-        navigator.clipboard.writeText(textToCopy)
-            .then(() => {
-                const originalText = copyBothBtn.textContent;
-                copyBothBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyBothBtn.textContent = originalText;
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Failed to copy text: ', err);
-                showError('Failed to copy to clipboard. Please try again.');
-            });
-    });
     
     // Event listener for validate primary function button
     validatePrimaryBtn.addEventListener('click', () => {

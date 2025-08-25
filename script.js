@@ -1,52 +1,125 @@
 let functionSyntax = {};
+let functionExamples = {};
 let validFunctionNames = [];
+let editorView = null;
+let lastDetectedFunctions = [];
+let lastValidationResult = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // First, check if there's a function parameter in the URL and populate input immediately
-    const urlParams = new URLSearchParams(window.location.search);
-    const functionParam = urlParams.get('function');
+    // Wait for CodeMirror to be available
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait
     
-    if (functionParam) {
-        console.log("Function parameter found in URL:", functionParam);
-        const inputElement = document.getElementById('functionInput');
-        if (inputElement) {
-            inputElement.value = functionParam;
-            console.log("Function parameter set in input field");
+    function waitForCodeMirror() {
+        attempts++;
+        if (typeof window.CodeMirror !== 'undefined' && window.CodeMirror !== null && window.CodeMirror.EditorView) {
+            console.log('CodeMirror available, initializing...');
+            initializeCodeMirror();
+        } else if (window.CodeMirror === null) {
+            console.log('CodeMirror loading failed, using fallback');
+            initializeFallback();
+        } else if (attempts < maxAttempts) {
+            setTimeout(waitForCodeMirror, 100);
+        } else {
+            console.error('CodeMirror failed to load, falling back to textarea');
+            initializeFallback();
         }
     }
     
-    fetch('functions.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            functionSyntax = data;
-            validFunctionNames = Object.keys(functionSyntax);
-            console.log("Function syntax loaded successfully.");
-            
-            // Now trigger validation if we had a function parameter
-            if (functionParam) {
-                console.log("Triggering validation for URL parameter");
-                validateFunction();
-            }
-        })
-        .catch(error => {
-            console.error('Error loading function syntax:', error);
-            const resultsDiv = document.getElementById('validationResults');
-            resultsDiv.innerHTML = `<p class="error">Error loading function definitions. Please check console or try again later.</p>`;
-            resultsDiv.style.display = 'block';
-        });
-
-    const inputElement = document.getElementById('functionInput');
-    if (inputElement) {
-        inputElement.addEventListener('input', validateFunction);
-    } else {
-        console.error("Element with ID 'functionInput' not found.");
-    }
+    waitForCodeMirror();
 });
+
+function initializeCodeMirror() {
+    // First, check if there's a function parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const functionParam = urlParams.get('function');
+    
+    const { EditorView, EditorState, minimalSetup } = window.CodeMirror;
+    
+    // Create the editor state
+    const initialDoc = functionParam || '';
+    
+    try {
+        editorView = new EditorView({
+            state: EditorState.create({
+                doc: initialDoc,
+                extensions: [
+                    ...minimalSetup,
+                    EditorView.updateListener.of((update) => {
+                        if (update.docChanged) {
+                            validateFunction();
+                            updateInlineHighlights();
+                        }
+                    })
+                ]
+            }),
+            parent: document.getElementById('functionInput')
+        });
+    } catch (error) {
+        console.error('CodeMirror initialization failed:', error);
+        initializeFallback();
+        return;
+    }
+    
+    if (functionParam) {
+        console.log("Function parameter found in URL:", functionParam);
+        console.log("Function parameter set in CodeMirror editor");
+    }
+    
+    // Load function definitions
+    loadFunctionDefinitions(functionParam);
+}
+
+function initializeFallback() {
+    // Fallback to textarea if CodeMirror fails to load
+    const urlParams = new URLSearchParams(window.location.search);
+    const functionParam = urlParams.get('function');
+    
+    const container = document.getElementById('functionInput');
+    container.innerHTML = `<textarea id="fallbackTextarea" placeholder="Enter function string here..." style="width: 100%; min-height: 80px; max-height: 120px; padding: 1rem; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 18px; border: 2px solid transparent; border-radius: 12px; background: rgba(255, 255, 255, 0.9); resize: none;">${functionParam || ''}</textarea>`;
+    
+    const textarea = document.getElementById('fallbackTextarea');
+    textarea.addEventListener('input', () => {
+        validateFunction();
+    });
+    
+    // Override the editor getter for fallback
+    window.getEditorValue = () => textarea.value;
+    
+    // Load function definitions
+    loadFunctionDefinitions(functionParam);
+}
+
+function loadFunctionDefinitions(functionParam) {
+    // Load both function syntax and examples
+    Promise.all([
+        fetch('functions.json').then(response => response.json()),
+        fetch('examples.json').then(response => response.json())
+    ])
+    .then(([syntaxData, examplesData]) => {
+        functionSyntax = syntaxData;
+        functionExamples = examplesData;
+        validFunctionNames = Object.keys(functionSyntax);
+        console.log("Function syntax and examples loaded successfully.");
+        
+        // Create available functions list in sidebar
+        createAvailableFunctionsList();
+        
+        // Now trigger validation if we had a function parameter
+        if (functionParam) {
+            console.log("Triggering validation for URL parameter");
+            validateFunction();
+            updateInlineHighlights();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading function definitions:', error);
+        const errorsPanel = document.getElementById('validationErrors');
+        if (errorsPanel) {
+            errorsPanel.innerHTML = `<p class="error">Error loading function definitions. Please check console or try again later.</p>`;
+        }
+    });
+}
 
 function findAllFunctionOccurrences(input) {
     const occurrences = [];
@@ -328,18 +401,26 @@ function checkQuotesBalance(str) {
 }
 
 function validateFunction() {
-    const input = document.getElementById('functionInput').value;
-    const resultsDiv = document.getElementById('validationResults');
+    let input = '';
+    
+    if (editorView) {
+        input = editorView.state.doc.toString();
+    } else if (window.getEditorValue) {
+        input = window.getEditorValue();
+    } else {
+        return; // No editor available
+    }
+    const errorsPanel = document.getElementById('validationErrors');
+    const functionsPanel = document.getElementById('detectedFunctions');
     const inputDisplayDiv = document.getElementById('inputDisplayArea');
 
-    resultsDiv.innerHTML = '';
+    // Clear error panel and input display (these always need updating)
+    errorsPanel.innerHTML = '';
     inputDisplayDiv.innerHTML = '';
-    resultsDiv.style.display = 'none';
     inputDisplayDiv.style.display = 'none';
 
     if (Object.keys(functionSyntax).length === 0) {
-        resultsDiv.innerHTML = '<p class="info">Loading function definitions...</p>';
-        resultsDiv.style.display = 'block';
+        errorsPanel.innerHTML = '<p class="info">Loading function definitions...</p>';
         return;
     }
 
@@ -401,6 +482,9 @@ function validateFunction() {
 
     const allDetectedFunctions = findAllFunctionOccurrences(input);
     const uniqueFunctionNames = [...new Set(allDetectedFunctions.map(f => f.name))];
+    
+    // Check if detected functions have changed
+    const functionsChanged = JSON.stringify(uniqueFunctionNames) !== JSON.stringify(lastDetectedFunctions);
 
     allDetectedFunctions.forEach(func => {
         if (func.context === 'brace' && func.actualUnderscores !== func.expectedUnderscores) {
@@ -479,12 +563,28 @@ function validateFunction() {
     if (uniqueFunctionNames.length > 0) {
         messages.push('<h4>Detected Functions & Syntax Help:</h4>');
         messages.push('<table class="function-table">');
-        messages.push('<tr><th>Function</th><th>Syntax</th></tr>');
+        messages.push('<tr><th>Function</th><th>Syntax</th><th>Examples</th></tr>');
         uniqueFunctionNames.forEach(funcName => {
             const funcData = allDetectedFunctions.find(f => f.name === funcName);
             if (funcData) {
                 const escapedSyntax = funcData.syntax.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                messages.push(`<tr><td><strong>${funcName}</strong></td><td><code>${escapedSyntax}</code></td></tr>`);
+                
+                // Get examples for this function
+                const exampleString = functionExamples[funcName];
+                let exampleHtml = '<span class="no-examples">No examples available</span>';
+                
+                if (exampleString && typeof exampleString === 'string') {
+                    // Split examples - they're separated by various patterns like } → or → 
+                    const examples = exampleString.split(/(?=\${)|(?<=\})\s*(?=\${)/).filter(ex => ex.trim().length > 0);
+                    
+                    if (examples.length > 0) {
+                        // Show all examples without spaces between them
+                        const allExamples = examples.map(ex => ex.replace(/</g, "&lt;").replace(/>/g, "&gt;")).join('<br>');
+                        exampleHtml = `<code class="example">${allExamples}</code>`;
+                    }
+                }
+                
+                messages.push(`<tr><td><strong>${funcName}</strong></td><td><code>${escapedSyntax}</code></td><td>${exampleHtml}</td></tr>`);
             }
         });
         messages.push('</table>');
@@ -528,21 +628,61 @@ function validateFunction() {
     }
 
     if (messages.length > 0) {
-        // Add a Fix button if there are errors
-        if (hasErrors) {
-            messages.push('<div class="button-group">');
-            messages.push('<button id="fixErrorBtn" class="fix-btn">Fix in Function Fixer</button>');
-            messages.push('</div>');
+        // Fix button will be added directly to error panel
+        
+        // Split messages into errors and functions
+        const errorMessages = [];
+        const functionMessages = [];
+        let currentSection = 'error';
+        
+        messages.forEach(msg => {
+            if (msg.includes('Detected Functions')) {
+                currentSection = 'function';
+                functionMessages.push('<h4>Detected Functions</h4>');
+            } else if (msg.includes('Validation Errors')) {
+                currentSection = 'error';
+                errorMessages.push('<h4>Validation Status</h4>');
+            } else if (currentSection === 'function') {
+                functionMessages.push(msg);
+            } else {
+                errorMessages.push(msg);
+            }
+        });
+        
+        // If no specific headers were found, treat as mixed content
+        if (errorMessages.length === 0 && functionMessages.length === 0) {
+            errorMessages.push('<h4>Validation Status</h4>');
+            errorMessages.push(...messages);
         }
         
-        resultsDiv.innerHTML = messages.join('');
-        resultsDiv.style.display = 'block';
+        // Add fix button to error panel if there are errors
+        let errorHtml = errorMessages.length > 0 ? errorMessages.join('') : '<h4>Validation Status</h4><p class="info">Enter a function to validate</p>';
+        
+        if (hasErrors && !window.location.pathname.includes('fix.html')) {
+            errorHtml += '<button id="fixErrorBtn" class="fix-btn">Fix Function →</button>';
+        }
+        
+        errorsPanel.innerHTML = errorHtml;
+        
+        // Only update functions panel if functions have changed
+        if (functionsChanged) {
+            functionsPanel.innerHTML = functionMessages.length > 0 ? functionMessages.join('') : '<h4>Detected Functions</h4><p class="info">No functions detected</p>';
+            lastDetectedFunctions = [...uniqueFunctionNames];
+        }
+        
+        // Update inline highlights
+        updateInlineHighlights();
         
         // Add event listener for the fix button if it exists
         const fixBtn = document.getElementById('fixErrorBtn');
         if (fixBtn) {
             fixBtn.addEventListener('click', () => {
-                const functionText = document.getElementById('functionInput').value;
+                let functionText = '';
+                if (editorView) {
+                    functionText = editorView.state.doc.toString();
+                } else if (window.getEditorValue) {
+                    functionText = window.getEditorValue();
+                }
                 
                 // Collect error messages
                 const errorMessages = validationErrors.map(error => error.message).join('\n');
@@ -551,5 +691,227 @@ function validateFunction() {
                 window.location.href = `fix.html?function=${encodeURIComponent(functionText)}&errors=${encodeURIComponent(errorMessages)}`;
             });
         }
+    } else {
+        // Handle case where no messages but functions might have changed
+        if (functionsChanged) {
+            functionsPanel.innerHTML = '<h4>Detected Functions</h4><p class="info">No functions detected</p>';
+            lastDetectedFunctions = [...uniqueFunctionNames];
+        }
     }
+}
+
+
+// Function to create the available functions list in sidebar
+function createAvailableFunctionsList() {
+    const functionsDiv = document.getElementById('availableFunctions');
+    if (!functionsDiv || !functionSyntax) return;
+
+    // Sort functions alphabetically for better organization
+    const sortedFunctions = Object.keys(functionSyntax).sort();
+    
+    let html = '';
+    sortedFunctions.forEach(funcName => {
+        const syntax = functionSyntax[funcName].syntax || funcName + '()';
+        const exampleString = functionExamples[funcName];
+        let tooltip = syntax;
+        
+        if (exampleString && typeof exampleString === 'string') {
+            // Split examples and take first few for tooltip
+            const examples = exampleString.split(/(?=\${)|(?<=\})\s*(?=\${)/).filter(ex => ex.trim().length > 0);
+            if (examples.length > 0) {
+                tooltip += '\n\nExamples:\n' + examples.slice(0, 2).join('\n');
+                if (examples.length > 2) {
+                    tooltip += `\n... and ${examples.length - 2} more`;
+                }
+            }
+        }
+        
+        html += `<div class="function-item" title="${tooltip.replace(/"/g, '&quot;')}">${funcName}</div>`;
+    });
+    
+    functionsDiv.innerHTML = html;
+    
+    // Add click handlers to insert function names
+    functionsDiv.querySelectorAll('.function-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const functionName = item.textContent;
+            const insertText = functionName + '(';
+            
+            if (editorView) {
+                // CodeMirror mode
+                const selection = editorView.state.selection.main;
+                editorView.dispatch({
+                    changes: {
+                        from: selection.from,
+                        to: selection.to,
+                        insert: insertText
+                    },
+                    selection: {
+                        anchor: selection.from + insertText.length
+                    }
+                });
+                editorView.focus();
+            } else {
+                // Fallback textarea mode
+                const textarea = document.getElementById('fallbackTextarea');
+                if (textarea) {
+                    const cursorPos = textarea.selectionStart;
+                    const currentValue = textarea.value;
+                    const newValue = currentValue.slice(0, cursorPos) + insertText + currentValue.slice(cursorPos);
+                    textarea.value = newValue;
+                    textarea.focus();
+                    textarea.setSelectionRange(cursorPos + insertText.length, cursorPos + insertText.length);
+                }
+            }
+            
+            // Trigger validation
+            validateFunction();
+        });
+    });
+    
+    // Add search functionality
+    const searchInput = document.getElementById('functionSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const functionItems = functionsDiv.querySelectorAll('.function-item');
+            
+            functionItems.forEach(item => {
+                const functionName = item.textContent.toLowerCase();
+                if (functionName.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+    }
+}
+
+// Function to update inline highlights in CodeMirror
+function updateInlineHighlights() {
+    if (!editorView) return;
+    
+    const input = editorView.state.doc.toString();
+    
+    if (!input.trim()) {
+        return;
+    }
+
+    // Get current validation errors from the main validation function
+    const validationErrors = [];
+    
+    // Check brackets
+    const balanceResult = checkBalance(input);
+    if (!balanceResult.balanced && balanceResult.index !== undefined) {
+        validationErrors.push({
+            start: balanceResult.index,
+            end: balanceResult.index + 1,
+            type: 'bracket'
+        });
+    }
+
+    // Check quotes
+    const quoteResult = checkQuotesBalance(input);
+    if (!quoteResult.balanced && quoteResult.index !== undefined) {
+        validationErrors.push({
+            start: quoteResult.index,
+            end: quoteResult.index + 1,
+            type: 'quote'
+        });
+    }
+
+    // Check function underscore errors using the actual validation logic
+    const allDetectedFunctions = findAllFunctionOccurrences(input);
+    allDetectedFunctions.forEach(func => {
+        if (func.context === 'brace' && func.actualUnderscores !== func.expectedUnderscores) {
+            validationErrors.push({
+                start: func.index,
+                end: func.index + func.name.length + func.actualUnderscores,
+                type: 'underscore'
+            });
+        }
+    });
+
+    // Check for function calls without underscores inside ${...}
+    const missingUnderscoreRegex = /\$\{\s*([a-zA-Z][\w]*)\s*\(/g;
+    let missingMatch;
+    while ((missingMatch = missingUnderscoreRegex.exec(input)) !== null) {
+        if (missingMatch[1] && missingMatch[1] !== '}') {
+            validationErrors.push({
+                start: missingMatch.index + 2,
+                end: missingMatch.index + 2 + missingMatch[1].length,
+                type: 'missing_underscore'
+            });
+        }
+    }
+
+    // Check for invalid function names
+    const invalidFunctionRegex = /\$\{\s*(_{1,3})(\w+)\s*\(/g;
+    let invalidMatch;
+    while ((invalidMatch = invalidFunctionRegex.exec(input)) !== null) {
+        const prefix = invalidMatch[1];
+        const funcName = invalidMatch[2];
+        const canonicalName = `_${funcName}`;
+        
+        if (!validFunctionNames.includes(canonicalName)) {
+            validationErrors.push({
+                start: invalidMatch.index + 2 + prefix.length,
+                end: invalidMatch.index + 2 + prefix.length + funcName.length,
+                type: 'invalid_function'
+            });
+        }
+    }
+
+    // Apply CodeMirror decorations for errors
+    if (window.CodeMirror && window.CodeMirror.Decoration) {
+        const { Decoration } = window.CodeMirror;
+        const decorations = [];
+        
+        validationErrors.forEach(error => {
+            const decoration = Decoration.mark({
+                class: 'cm-error-highlight',
+                attributes: { title: `Error: ${error.type}` }
+            }).range(error.start, error.end);
+            decorations.push(decoration);
+        });
+        
+        // If no errors, highlight valid functions with success
+        if (validationErrors.length === 0) {
+            const functionMatches = input.matchAll(/(_+)([a-zA-Z_]\w*)/g);
+            for (const match of functionMatches) {
+                const funcName = '_' + match[2];
+                if (validFunctionNames.includes(funcName)) {
+                    const decoration = Decoration.mark({
+                        class: 'cm-success-highlight'
+                    }).range(match.index, match.index + match[0].length);
+                    decorations.push(decoration);
+                }
+            }
+        }
+        
+        // Apply decorations using a state effect (simplified approach)
+        try {
+            editorView.dispatch({
+                effects: [
+                    // Clear existing decorations and add new ones
+                    // This is a simplified approach - in a real implementation you'd use StateField
+                ]
+            });
+        } catch (e) {
+            console.log('Decoration application not yet fully implemented:', e);
+        }
+    }
+}
+
+// Function to sync scroll position - no longer needed with CodeMirror
+function syncScrollPosition() {
+    // CodeMirror handles scrolling internally
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
